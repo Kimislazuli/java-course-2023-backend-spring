@@ -31,3 +31,5 @@ build/
 ### VS Code ###
 .vscode/
 /.idea/
+/bot/src/main/resources/application-dev.yml
+/bot/src/main/resources/application-dev.properties
