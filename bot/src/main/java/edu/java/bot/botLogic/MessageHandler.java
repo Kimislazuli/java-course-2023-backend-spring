@@ -61,15 +61,13 @@ public class MessageHandler {
 
     private SendMessage handleCommandInput(Update update, String messageText, Long userId, User user) {
         Command command = commands.get(messageText);
-        if (user == null) {
+        if (user == null || (messageText.equals("/list") || messageText.equals(HELP))) {
             if (List.of(HELP, START).contains(messageText)) {
                 return command.handle(update);
             }
             return new SendMessage(userId, NOT_AVAILABLE_COMMAND_MESSAGE);
         } else {
-            if (messageText.equals("/list") || messageText.equals(HELP)) {
-                return command.handle(update);
-            } else if (messageText.equals(START)) {
+            if (messageText.equals(START)) {
                 return new SendMessage(userId, "Вы уже авторизованы");
             } else if (messageText.equals(TRACK)) {
                 user.setState(State.WAIT_FOR_LINK_TO_ADD);
@@ -81,22 +79,22 @@ public class MessageHandler {
     }
 
     private SendMessage handleOtherInput(Update update, String messageText, Long userId, User user) {
-        if (user.getState() == State.WAIT_FOR_LINK_TO_ADD) {
+        if (user.getState() == State.DEFAULT) {
+            return new SendMessage(userId, WRONG_COMMAND_MESSAGE);
+        } else if (user.getState() == State.WAIT_FOR_LINK_TO_ADD) {
             if (isLinkCorrect(messageText)) {
                 Command command = commands.get(TRACK);
                 user.setState(State.DEFAULT);
                 return command.handle(update);
             }
-            return new SendMessage(userId, WRONG_LINK_MESSAGE);
         } else if (user.getState() == State.WAIT_FOR_LINK_TO_REMOVE) {
             if (isLinkCorrect(messageText)) {
                 Command command = commands.get("/untrack");
                 user.setState(State.DEFAULT);
                 return command.handle(update);
             }
-            return new SendMessage(userId, WRONG_LINK_MESSAGE);
         }
-        return new SendMessage(userId, WRONG_COMMAND_MESSAGE);
+        return new SendMessage(userId, WRONG_LINK_MESSAGE);
     }
 
     public static boolean isLinkCorrect(String url) {
