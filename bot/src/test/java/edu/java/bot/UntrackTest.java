@@ -4,7 +4,6 @@ import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.bot.botLogic.commands.ListCommand;
 import edu.java.bot.botLogic.commands.TrackCommand;
 import edu.java.bot.botLogic.commands.UntrackCommand;
 import edu.java.bot.model.Link;
@@ -17,7 +16,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class LinkActionsTest {
+public class UntrackTest {
     private static final long CHAT_ID = 7L;
 
     private static final Update update = mock(Update.class);
@@ -39,28 +38,8 @@ public class LinkActionsTest {
 
     LinkRepository linkRepository = new LinkRepository();
     LinkService linkService = new LinkService(linkRepository);
-    ListCommand listCommand = new ListCommand(linkService);
     TrackCommand trackCommand = new TrackCommand(linkService);
     UntrackCommand untrackCommand = new UntrackCommand(linkService);
-
-    @Test
-    void emptyLinkList() {
-        SendMessage handled = listCommand.handle(update);
-        String actualResult = (String) handled.getParameters().get("text");
-
-        assertThat(actualResult).isEqualTo("Нет зарегистрированных ссылок.");
-    }
-
-    @Test
-    void addLink() {
-        SendMessage handled = trackCommand.handle(update);
-        String actualResult = (String) handled.getParameters().get("text");
-        List<Link> links = linkRepository.getUserLinks(7L);
-
-        assertThat(links.getFirst().getUrl()).isEqualTo("link");
-        assertThat(actualResult).startsWith("Ссылка ");
-        assertThat(actualResult).endsWith(" успешно добавлена.");
-    }
 
     @Test
     void successfullyRemoveLink() {

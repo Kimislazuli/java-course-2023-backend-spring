@@ -57,11 +57,14 @@ public class Bot implements AutoCloseable, UpdatesListener {
     }
 
     private SetMyCommands createSetMyCommand() {
-        return new SetMyCommands(commands.stream().map(command -> new BotCommand(
-                command.command(),
-                command.description()
-            )
-        ).toArray(BotCommand[]::new));
+        BotCommand[] botCommandsArray = commands.stream()
+            .map(
+                command -> new BotCommand(
+                    command.command(),
+                    command.description()
+                )
+            ).toArray(BotCommand[]::new);
+        return new SetMyCommands();
     }
 
     @Override

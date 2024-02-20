@@ -38,11 +38,6 @@ public class MessageHandler {
 
     private final UserRepository userRepository;
 
-    public MessageHandler() {
-        commands = null;
-        userRepository = null;
-    }
-
     @Autowired
     public MessageHandler(Set<? extends Command> commandsSet, UserRepository repository) {
         commands = commandsSet.stream().collect(Collectors.toMap(Command::command, Function.identity()));
@@ -51,52 +46,58 @@ public class MessageHandler {
         userRepository = repository;
     }
 
-    @SuppressWarnings("ReturnCount")
     public SendMessage handleRequest(Update update) {
         String messageText = update.message().text();
         Long userId = update.message().chat().id();
         User user = userRepository.getUserById(userId);
 
         if (commands.containsKey(messageText)) {
-            Command command = commands.get(messageText);
-            if (user == null) {
-                if (List.of(HELP, START).contains(messageText)) {
-                    return command.handle(update);
-                }
-                return new SendMessage(userId, NOT_AVAILABLE_COMMAND_MESSAGE);
-            } else {
-                if (messageText.equals("/list") || messageText.equals(HELP)) {
-                    return command.handle(update);
-                } else if (messageText.equals(START)) {
-                    return new SendMessage(userId, "Вы уже авторизованы");
-                } else if (messageText.equals(TRACK)) {
-                    user.setState(State.WAIT_FOR_LINK_TO_ADD);
-                } else {
-                    user.setState(State.WAIT_FOR_LINK_TO_REMOVE);
-                }
-                return new SendMessage(userId, "Отправьте ссылку");
-            }
+            return handleCommandInput(update, messageText, userId, user);
         } else if (user != null) {
-            if (user.getState() == State.WAIT_FOR_LINK_TO_ADD) {
-                if (isLinkCorrect(messageText)) {
-                    Command command = commands.get(TRACK);
-                    user.setState(State.DEFAULT);
-                    return command.handle(update);
-                }
-                return new SendMessage(userId, WRONG_LINK_MESSAGE);
-            } else if (user.getState() == State.WAIT_FOR_LINK_TO_REMOVE) {
-                if (isLinkCorrect(messageText)) {
-                    Command command = commands.get("/untrack");
-                    user.setState(State.DEFAULT);
-                    return command.handle(update);
-                }
-                return new SendMessage(userId, WRONG_LINK_MESSAGE);
+            return handleOtherInput(update, messageText, userId, user);
+        }
+        return new SendMessage(userId, WRONG_COMMAND_MESSAGE);
+    }
+
+    private SendMessage handleCommandInput(Update update, String messageText, Long userId, User user) {
+        Command command = commands.get(messageText);
+        if (user == null) {
+            if (List.of(HELP, START).contains(messageText)) {
+                return command.handle(update);
+            }
+            return new SendMessage(userId, NOT_AVAILABLE_COMMAND_MESSAGE);
+        } else {
+            if (messageText.equals("/list") || messageText.equals(HELP)) {
+                return command.handle(update);
+            } else if (messageText.equals(START)) {
+                return new SendMessage(userId, "Вы уже авторизованы");
+            } else if (messageText.equals(TRACK)) {
+                user.setState(State.WAIT_FOR_LINK_TO_ADD);
+            } else {
+                user.setState(State.WAIT_FOR_LINK_TO_REMOVE);
+            }
+            return new SendMessage(userId, "Отправьте ссылку");
+        }
+    }
+
+    private SendMessage handleOtherInput(Update update, String messageText, Long userId, User user) {
+        if (user.getState() == State.WAIT_FOR_LINK_TO_ADD) {
+            if (isLinkCorrect(messageText)) {
+                Command command = commands.get(TRACK);
+                user.setState(State.DEFAULT);
+                return command.handle(update);
+            }
+        } else if (user.getState() == State.WAIT_FOR_LINK_TO_REMOVE) {
+            if (isLinkCorrect(messageText)) {
+                Command command = commands.get("/untrack");
+                user.setState(State.DEFAULT);
+                return command.handle(update);
             }
         }
         return new SendMessage(userId, WRONG_COMMAND_MESSAGE);
     }
 
-    public boolean isLinkCorrect(String url) {
+    public static boolean isLinkCorrect(String url) {
         if (url.startsWith("https://github.com/") || url.startsWith("https://stackoverflow.com/")) {
             try {
                 URL linkUrl = new URL(url);

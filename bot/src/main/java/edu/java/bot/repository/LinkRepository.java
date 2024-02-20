@@ -2,19 +2,18 @@ package edu.java.bot.repository;
 
 import edu.java.bot.model.Link;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class LinkRepository {
-    private final Map<Long, List<Link>> links = new HashMap<>();
+    private final ConcurrentMap<Long, List<Link>> links = new ConcurrentHashMap<>();
 
     public void addLink(Long userId, String url) {
-        if (!links.containsKey(userId)) {
-            links.put(userId, new ArrayList<>());
-        }
+        links.putIfAbsent(userId, Collections.synchronizedList(new ArrayList<>()));
         List<Link> userLinks = links.get(userId);
         userLinks.add(new Link(url));
     }
