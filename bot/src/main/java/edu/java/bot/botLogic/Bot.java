@@ -64,7 +64,7 @@ public class Bot implements AutoCloseable, UpdatesListener {
                     command.description()
                 )
             ).toArray(BotCommand[]::new);
-        return new SetMyCommands();
+        return new SetMyCommands(botCommandsArray);
     }
 
     @Override
