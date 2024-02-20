@@ -87,12 +87,14 @@ public class MessageHandler {
                 user.setState(State.DEFAULT);
                 return command.handle(update);
             }
+            return new SendMessage(userId, WRONG_LINK_MESSAGE);
         } else if (user.getState() == State.WAIT_FOR_LINK_TO_REMOVE) {
             if (isLinkCorrect(messageText)) {
                 Command command = commands.get("/untrack");
                 user.setState(State.DEFAULT);
                 return command.handle(update);
             }
+            return new SendMessage(userId, WRONG_LINK_MESSAGE);
         }
         return new SendMessage(userId, WRONG_COMMAND_MESSAGE);
     }
