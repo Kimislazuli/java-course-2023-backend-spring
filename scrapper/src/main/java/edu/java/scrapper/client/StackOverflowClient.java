@@ -1,6 +1,6 @@
-package edu.java.client;
+package edu.java.scrapper.client;
 
-import edu.java.dto.stackoverflow.StackOverflowResponse;
+import edu.java.scrapper.dto.stackoverflow.StackOverflowResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;

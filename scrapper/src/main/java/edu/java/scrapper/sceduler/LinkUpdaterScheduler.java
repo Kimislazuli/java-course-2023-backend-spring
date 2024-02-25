@@ -1,4 +1,4 @@
-package edu.java.sceduler;
+package edu.java.scrapper.sceduler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
