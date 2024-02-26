@@ -1,4 +1,4 @@
-package edu.java.bot.botLogic;
+package edu.java.bot.bot_logic;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
@@ -6,23 +6,20 @@ import com.pengrad.telegrambot.model.BotCommand;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.botcommandscope.BotCommandsScopeChat;
 import com.pengrad.telegrambot.request.SetMyCommands;
-import edu.java.bot.botLogic.commands.Command;
+import edu.java.bot.bot_logic.commands.Command;
 import edu.java.bot.configuration.ApplicationConfig;
 import jakarta.annotation.PostConstruct;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 public class Bot implements AutoCloseable, UpdatesListener {
-    private ApplicationConfig config;
+    private final ApplicationConfig config;
     private TelegramBot telegramBot;
-    private MessageHandler messageHandler;
-    private static final Logger LOGGER = LogManager.getLogger(Bot.class);
+    private final MessageHandler messageHandler;
 
     private final List<? extends Command> commands;
 
@@ -38,7 +35,7 @@ public class Bot implements AutoCloseable, UpdatesListener {
         updates.forEach(
             update -> {
                 if (update.message() != null) {
-                    LOGGER.info("processing {}", update);
+                    log.info("processing {}", update);
                     telegramBot.execute(messageHandler.handleRequest(update));
                     telegramBot.execute(createSetMyCommand().scope(new BotCommandsScopeChat(update.message().chat()
                         .id())));
