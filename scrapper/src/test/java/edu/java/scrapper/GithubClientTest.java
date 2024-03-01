@@ -5,6 +5,7 @@ import edu.java.scrapper.client.GithubClient;
 import edu.java.scrapper.dto.github.GithubResponse;
 import java.time.OffsetDateTime;
 import java.util.Objects;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -33,13 +34,19 @@ public class GithubClientTest {
         stubFor(get(urlEqualTo("/repos/johndoe/java/events?per_page=1")).willReturn(aResponse()
             .withStatus(200)
             .withHeader("Content-Type", "application/json")
-            .withBody("\"updated_at\":\"2024-01-03T01:57:08Z\"")));
+            .withBody("""
+                [
+                  {
+                    "public": true,
+                    "created_at": "2024-01-03T01:57:09Z"
+                  }
+                ]""")));
 
         GithubClient githubClient = new GithubClient(WebClient.builder(), "http://localhost:8080");
-        System.out.println(githubClient.fetchLastModificationTime("johndoe", "java"));
 
-        GithubResponse actualResult = Objects.requireNonNull(githubClient.fetchLastModificationTime("johndoe", "java"));
+        Optional<GithubResponse> actualResult = githubClient.fetchLastModificationTime("johndoe", "java");
 
-        assertThat(actualResult).isEqualTo(new GithubResponse(OffsetDateTime.parse("2024-01-03T01:57:08Z")));
+        assertThat(actualResult).isPresent();
+        assertThat(actualResult.get()).isEqualTo(new GithubResponse(OffsetDateTime.parse("2024-01-03T01:57:09Z")));
     }
 }
