@@ -3,7 +3,6 @@ package edu.java.scrapper.configuration;
 import jakarta.validation.constraints.NotNull;
 import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
@@ -12,10 +11,6 @@ public record ApplicationConfig(
     @NotNull
     Scheduler scheduler
 ) {
-    @Bean(name = "schedulerFixedDelay")
-    public Duration fixedDelay() {
-        return scheduler.interval;
-    }
 
     public record Scheduler(boolean enable, @NotNull Duration interval, @NotNull Duration forceCheckDelay) {
     }
