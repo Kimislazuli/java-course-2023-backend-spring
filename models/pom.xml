@@ -9,7 +9,7 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>scrapper</artifactId>
+    <artifactId>models</artifactId>
     <version>${revision}</version>
 
     <dependencies>
@@ -35,12 +35,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
-        </dependency>
-
-        <!-- Kafka -->
-        <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka</artifactId>
         </dependency>
 
         <!-- Dev Tools -->
@@ -118,20 +112,11 @@
             <artifactId>kafka</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!-- modules -->
         <dependency>
-            <groupId>edu.java</groupId>
-            <artifactId>models</artifactId>
-            <version>0.1</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <!-- swagger -->
-        <dependency>
-            <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-annotations</artifactId>
-            <version>2.2.20</version>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.10.0</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
