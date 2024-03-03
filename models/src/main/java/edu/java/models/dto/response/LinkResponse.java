@@ -1,4 +1,6 @@
 package edu.java.models.dto.response;
 
-public record LinkResponse(Long id, String url) {
+import java.net.URI;
+
+public record LinkResponse(Long id, URI url) {
 }
