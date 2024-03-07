@@ -1,4 +1,4 @@
-package edu.java.configuration;
+package edu.java.scrapper.configuration;
 
 import jakarta.validation.constraints.NotNull;
 import java.time.Duration;
@@ -11,6 +11,7 @@ public record ApplicationConfig(
     @NotNull
     Scheduler scheduler
 ) {
+
     public record Scheduler(boolean enable, @NotNull Duration interval, @NotNull Duration forceCheckDelay) {
     }
 }
