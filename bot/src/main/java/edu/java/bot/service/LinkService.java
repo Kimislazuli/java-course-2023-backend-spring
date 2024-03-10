@@ -23,7 +23,7 @@ public class LinkService {
     public String list(Long userId) {
         List<Link> links = linkRepository.getUserLinks(userId);
         if (links != null) {
-           return String.join("\n", links.stream().map(Link::getUrl).toList());
+           return String.join("\n", links.stream().map(Link::url).toList());
         }
         return null;
     }

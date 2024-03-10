@@ -1,15 +1,14 @@
 package edu.java.bot.model;
 
-import edu.java.bot.botLogic.State;
+import edu.java.bot.bot_logic.State;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter
 public class User {
-    @Getter
     private final Long telegramId;
 
     @Setter
-    @Getter
     private State state;
 
     public User(Long telegramId) {
