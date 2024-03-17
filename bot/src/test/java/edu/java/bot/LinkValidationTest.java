@@ -1,6 +1,6 @@
 package edu.java.bot;
 
-import edu.java.bot.botLogic.MessageHandler;
+import edu.java.bot.bot_logic.MessageHandler;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 

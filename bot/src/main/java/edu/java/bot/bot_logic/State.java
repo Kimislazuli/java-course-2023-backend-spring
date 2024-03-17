@@ -1,4 +1,4 @@
-package edu.java.bot.botLogic;
+package edu.java.bot.bot_logic;
 
 public enum State {
     DEFAULT,

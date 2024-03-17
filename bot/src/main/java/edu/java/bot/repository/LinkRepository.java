@@ -19,14 +19,18 @@ public class LinkRepository {
     }
 
     public List<Link> getUserLinks(Long userId) {
-        return links.get(userId);
+        List<Link> linkList = links.get(userId);
+        if (linkList != null) {
+            return Collections.unmodifiableList(linkList);
+        }
+        return null;
     }
 
     public boolean deleteLink(Long userId, String url) {
-        if (links.containsKey(userId)) {
-            List<String> linksListForUser = links.get(userId).stream().map(Link::getUrl).toList();
-            if (linksListForUser.contains(url)) {
-                links.put(userId, links.get(userId).stream().filter(l -> !l.getUrl().equals(url)).toList());
+        List<Link> linkList = links.get(userId);
+        if (linkList != null) {
+            if (linkList.stream().anyMatch(l -> l.url().equals(url))) {
+                linkList.removeIf(l -> l.url().equals(url));
                 return true;
             }
         }
