@@ -4,6 +4,7 @@ import edu.java.models.dto.request.AddLinkRequest;
 import edu.java.models.dto.request.RemoveLinkRequest;
 import edu.java.models.dto.response.LinkResponse;
 import edu.java.models.dto.response.ListLinksResponse;
+import java.net.URI;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
@@ -52,7 +53,7 @@ public class ScrapperClient {
             .uri(LINKS)
             .header(TG_CHAT_ID_HEADER, id.toString())
             .contentType(MediaType.APPLICATION_JSON)
-            .body(BodyInserters.fromValue(new AddLinkRequest(link)))
+            .body(BodyInserters.fromValue(new AddLinkRequest(URI.create(link))))
             .retrieve()
             .bodyToMono(LinkResponse.class)
             .blockOptional();
