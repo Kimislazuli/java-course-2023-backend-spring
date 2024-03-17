@@ -12,6 +12,7 @@ import edu.java.scrapper.service.LinkService;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -86,6 +87,14 @@ public class JdbcLinkService implements LinkService {
             .map(linkDao::getLinkById)
             .filter(Optional::isPresent)
             .map(Optional::get)
+            .toList();
+    }
+
+    @Override
+    public List<Long> linkedChats(long linkId) {
+        return connectionDao.findAllByLinkId(linkId)
+            .stream()
+            .map(ChatToLinkConnection::chatId)
             .toList();
     }
 

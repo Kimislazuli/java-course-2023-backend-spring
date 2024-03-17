@@ -64,9 +64,21 @@ public class JdbcLinkDao {
         return client.sql(query).param(id).query(mapper).optional();
     }
 
-    public List<Link> findOldLinksToCheck() {
-        String query = "SELECT * FROM link WHERE last_update < NOW() - INTERVAL '5 hours'";
+    public List<Link> findOldLinksToCheck(OffsetDateTime timestamp) {
+        String query = "SELECT * FROM link WHERE last_check < ?";
 
-        return client.sql(query).query(mapper).list();
+        return client.sql(query).param(timestamp).query(mapper).list();
+    }
+
+    public void updateCheckTime(long linkId, OffsetDateTime timestamp) {
+        String query = "UPDATE link SET last_check = ? WHERE id = ?";
+
+        client.sql(query).param(linkId).param(timestamp).update();
+    }
+
+    public void updateUpdateTime(long linkId, OffsetDateTime timestamp) {
+        String query = "UPDATE link SET last_update = ? WHERE id = ?";
+
+        client.sql(query).param(linkId).param(timestamp).update();
     }
 }

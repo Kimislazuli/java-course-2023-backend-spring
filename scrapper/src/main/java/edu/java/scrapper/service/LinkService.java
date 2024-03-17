@@ -6,6 +6,7 @@ import edu.java.scrapper.exception.NotExistException;
 import edu.java.scrapper.exception.RepeatedRegistrationException;
 import java.net.URI;
 import java.util.Collection;
+import java.util.List;
 
 public interface LinkService {
     Link add(long tgChatId, URI url) throws AlreadyExistException, RepeatedRegistrationException;
@@ -13,4 +14,6 @@ public interface LinkService {
     Link remove(long tgChatId, URI url) throws NotExistException;
 
     Collection<Link> listAll(long tgChatId);
+
+    List<Long> linkedChats(long linkId);
 }

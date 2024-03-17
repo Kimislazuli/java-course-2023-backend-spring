@@ -2,11 +2,10 @@ package edu.java.scrapper.domain.jdbc;
 
 import edu.java.scrapper.IntegrationTest;
 import edu.java.scrapper.domain.dao.jdbc.JdbcChatDao;
-import edu.java.scrapper.exception.AlreadyExistException;
-import edu.java.scrapper.exception.NotExistException;
 import edu.java.scrapper.domain.model.chat.Chat;
-import java.util.List;
+import edu.java.scrapper.exception.NotExistException;
 import edu.java.scrapper.exception.RepeatedRegistrationException;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,7 +34,7 @@ public class ChatDaoTest extends IntegrationTest {
     @Transactional
     @Rollback
     void addExistedChatTest() {
-        assertThrows(AlreadyExistException.class, () -> {
+        assertThrows(RepeatedRegistrationException.class, () -> {
             repository.add(22L);
             repository.add(22L);
         });

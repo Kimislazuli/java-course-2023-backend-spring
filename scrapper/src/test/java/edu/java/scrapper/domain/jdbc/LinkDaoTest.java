@@ -2,9 +2,9 @@ package edu.java.scrapper.domain.jdbc;
 
 import edu.java.scrapper.IntegrationTest;
 import edu.java.scrapper.domain.dao.jdbc.JdbcLinkDao;
+import edu.java.scrapper.domain.model.link.Link;
 import edu.java.scrapper.exception.AlreadyExistException;
 import edu.java.scrapper.exception.NotExistException;
-import edu.java.scrapper.domain.model.link.Link;
 import java.time.OffsetDateTime;
 import java.util.List;
 import org.junit.jupiter.api.Test;
