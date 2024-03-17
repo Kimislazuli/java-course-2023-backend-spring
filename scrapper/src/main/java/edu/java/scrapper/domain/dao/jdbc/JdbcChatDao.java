@@ -53,7 +53,7 @@ public class JdbcChatDao {
     }
 
     public Optional<Chat> getById(long id) {
-        String query = "SELECT FROM chat WHERE id = ?";
+        String query = "SELECT * FROM chat WHERE id = ?";
 
         return client.sql(query).param(id).query(mapper).optional();
     }

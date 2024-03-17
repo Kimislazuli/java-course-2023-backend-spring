@@ -16,7 +16,7 @@ public class ScrapperExceptionHandler {
     ) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
             new ApiErrorResponse(
-                "Внутренняя ошиька сервера",
+                "Внутренняя ошибка сервера",
                 HttpStatus.INTERNAL_SERVER_ERROR.toString(),
                 ex.getClass().getSimpleName(),
                 ex.getMessage(),

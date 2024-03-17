@@ -53,13 +53,13 @@ public class JdbcLinkDao {
     }
 
     public Optional<Link> getLinkByUrl(String url) {
-        String query = "SELECT FROM link WHERE url = ?";
+        String query = "SELECT * FROM link WHERE url = ?";
 
         return client.sql(query).param(url).query(mapper).optional();
     }
 
     public Optional<Link> getLinkById(long id) {
-        String query = "SELECT FROM link WHERE id = ?";
+        String query = "SELECT * FROM link WHERE id = ?";
 
         return client.sql(query).param(id).query(mapper).optional();
     }

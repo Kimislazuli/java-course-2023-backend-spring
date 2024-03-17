@@ -34,10 +34,10 @@ public class JdbcTgChatService implements TgChatService {
     @Override
     public void unregister(long tgChatId) throws NotExistException {
         Optional<Chat> chatOptional = chatDao.getById(tgChatId);
-
         if (chatOptional.isEmpty()) {
             throw new NotExistException("This chat doesn't exist");
         }
+
 
         List<Long> links = connectionDao.findAllByChatId(tgChatId)
             .stream()

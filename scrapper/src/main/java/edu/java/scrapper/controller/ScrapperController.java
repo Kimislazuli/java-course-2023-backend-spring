@@ -24,7 +24,8 @@ public class ScrapperController implements ScrapperApi {
     private final TgChatService tgChatService;
     private final LinkService linkService;
 
-    // как избавиться от этого throws в сигнатуре? у меня же вроде есть @RestControllerAdvice
+    // как избавиться от этого throws в сигнатуре? у меня же вроде есть @RestControllerAdvice такое ощущение,
+    // что обработчик вообще не ловит исключения.
     @Override
     public void registerChat(@PathVariable Long id) throws RepeatedRegistrationException {
         log.info("Process request on /tg-chat/{} POST", id);

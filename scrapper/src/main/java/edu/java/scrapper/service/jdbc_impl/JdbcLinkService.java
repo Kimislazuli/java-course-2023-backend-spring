@@ -46,6 +46,7 @@ public class JdbcLinkService implements LinkService {
         if (isPairExists(tgChatId, linkId)) {
             throw new AlreadyExistException("This pair already exists");
         }
+        connectionDao.add(tgChatId, linkId);
         return link;
     }
 
