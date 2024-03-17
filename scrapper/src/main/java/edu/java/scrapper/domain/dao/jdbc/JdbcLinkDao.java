@@ -1,5 +1,6 @@
-package edu.java.scrapper.domain.dao;
+package edu.java.scrapper.domain.dao.jdbc;
 
+import edu.java.scrapper.domain.exception.AlreadyExistException;
 import edu.java.scrapper.domain.exception.NotExistException;
 import edu.java.scrapper.domain.model.link.Link;
 import edu.java.scrapper.domain.model.link.LinkRowMapper;
@@ -13,11 +14,11 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class LinkDAO {
+public class JdbcLinkDao {
     private final JdbcClient client;
     private final LinkRowMapper mapper;
 
-    public long add(String url, OffsetDateTime lastUpdate, OffsetDateTime lastCheck) {
+    public long add(String url, OffsetDateTime lastUpdate, OffsetDateTime lastCheck) throws AlreadyExistException {
         String query = "INSERT INTO link (url, last_update, last_check) VALUES (?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -30,7 +31,7 @@ public class LinkDAO {
 
             return keyHolder.getKeys() != null ? (long) keyHolder.getKeys().get("id") : -1;
         } catch (Exception e) {
-            return -1;
+            throw new AlreadyExistException("This link already exists");
         }
     }
 

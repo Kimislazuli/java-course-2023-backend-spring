@@ -1,5 +1,6 @@
-package edu.java.scrapper.domain.dao;
+package edu.java.scrapper.domain.dao.jdbc;
 
+import edu.java.scrapper.domain.exception.AlreadyExistException;
 import edu.java.scrapper.domain.exception.NotExistException;
 import edu.java.scrapper.domain.model.chat.Chat;
 import edu.java.scrapper.domain.model.chat.ChatRowMapper;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class ChatDAO {
+public class JdbcChatDao {
     private final JdbcClient client;
     private final ChatRowMapper mapper;
 
@@ -22,7 +23,7 @@ public class ChatDAO {
     // + так и не поняла, какой эксепшн ловить при повторной попытке выполнить операцию.
     // нужно ли это вообще делать или на уровне запроса решать проблему?
 
-    public long add(long chatId) {
+    public long add(long chatId) throws AlreadyExistException {
         try {
             String query = "INSERT INTO chat (id) VALUES (?)";
 
@@ -30,7 +31,7 @@ public class ChatDAO {
 
             return rowsAffected == 1 ? chatId : -1;
         } catch (Exception e) {
-            return -1;
+            throw new AlreadyExistException("This chat already exists");
         }
     }
 
