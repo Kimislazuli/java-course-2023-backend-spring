@@ -10,7 +10,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Slf4j
-
 public class BotClient {
     private final WebClient webClient;
     private final static String UPDATES = "/updates";
