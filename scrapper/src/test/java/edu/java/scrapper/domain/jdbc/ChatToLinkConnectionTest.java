@@ -4,11 +4,12 @@ import edu.java.scrapper.IntegrationTest;
 import edu.java.scrapper.domain.dao.jdbc.JdbcChatDao;
 import edu.java.scrapper.domain.dao.jdbc.JdbcChatToLinkConnectionDao;
 import edu.java.scrapper.domain.dao.jdbc.JdbcLinkDao;
-import edu.java.scrapper.domain.exception.AlreadyExistException;
-import edu.java.scrapper.domain.exception.NotExistException;
+import edu.java.scrapper.exception.AlreadyExistException;
+import edu.java.scrapper.exception.NotExistException;
 import edu.java.scrapper.domain.model.connection.ChatToLinkConnection;
 import java.time.OffsetDateTime;
 import java.util.List;
+import edu.java.scrapper.exception.RepeatedRegistrationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,7 +32,7 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void addSuccessfullyTest() throws AlreadyExistException {
+    void addSuccessfullyTest() throws AlreadyExistException, RepeatedRegistrationException {
         chatRepository.add(1L);
         long linkId = linkRepository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
         connectionRepository.add(1L, linkId);
@@ -56,7 +57,7 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void removeSuccessfullyTest() throws AlreadyExistException, NotExistException {
+    void removeSuccessfullyTest() throws AlreadyExistException, NotExistException, RepeatedRegistrationException {
         chatRepository.add(1L);
         long linkId = linkRepository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
         connectionRepository.add(1L, linkId);
@@ -79,7 +80,7 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void findAllTest() throws AlreadyExistException {
+    void findAllTest() throws AlreadyExistException, RepeatedRegistrationException {
         chatRepository.add(1L);
         chatRepository.add(2L);
         long linkId = linkRepository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);

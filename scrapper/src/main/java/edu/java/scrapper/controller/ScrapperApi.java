@@ -5,12 +5,14 @@ import edu.java.models.dto.request.RemoveLinkRequest;
 import edu.java.models.dto.response.ApiErrorResponse;
 import edu.java.models.dto.response.LinkResponse;
 import edu.java.models.dto.response.ListLinksResponse;
+import edu.java.scrapper.exception.AlreadyExistException;
+import edu.java.scrapper.exception.NotExistException;
+import edu.java.scrapper.exception.RepeatedRegistrationException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +30,7 @@ public interface ScrapperApi {
                                         schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping("/tg-chat/{id}")
-    ResponseEntity<Void> registerChat(@PathVariable Long id);
+    void registerChat(@PathVariable Long id) throws RepeatedRegistrationException, AlreadyExistException;
 
     @Operation(summary = "Удалить чат")
     @ApiResponses(value = {
@@ -41,7 +43,7 @@ public interface ScrapperApi {
                                         schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @DeleteMapping("/tg-chat/{id}")
-    ResponseEntity<Void> deleteChat(@PathVariable Long id);
+    void deleteChat(@PathVariable Long id) throws NotExistException;
 
     @Operation(summary = "Получить все отслеживаемые ссылки")
     @ApiResponses(value = {
@@ -57,7 +59,7 @@ public interface ScrapperApi {
                                         schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @GetMapping("/links")
-    ResponseEntity<Void> getLinks(Long id);
+    ListLinksResponse getLinks(Long id);
 
     @Operation(summary = "Добавить отслеживание ссылки")
     @ApiResponses(value = {
@@ -73,7 +75,7 @@ public interface ScrapperApi {
                                         schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping("/links")
-    ResponseEntity<Void> addLink(Long id, AddLinkRequest addLinkRequest);
+    void addLink(Long id, AddLinkRequest addLinkRequest) throws RepeatedRegistrationException, AlreadyExistException;
 
     @Operation(summary = "Убрать отслеживание ссылки")
     @ApiResponses(value = {
@@ -89,5 +91,5 @@ public interface ScrapperApi {
                                         schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @DeleteMapping("/links")
-    ResponseEntity<Void> deleteLink(Long id, RemoveLinkRequest removeLinkRequest);
+    void deleteLink(Long id, RemoveLinkRequest removeLinkRequest) throws NotExistException;
 }

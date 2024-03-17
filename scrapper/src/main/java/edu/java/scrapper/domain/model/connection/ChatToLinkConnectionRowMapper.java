@@ -1,10 +1,10 @@
 package edu.java.scrapper.domain.model.connection;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 @Component
 public class ChatToLinkConnectionRowMapper implements RowMapper<ChatToLinkConnection> {

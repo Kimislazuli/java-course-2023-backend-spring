@@ -2,10 +2,11 @@ package edu.java.scrapper.domain.jdbc;
 
 import edu.java.scrapper.IntegrationTest;
 import edu.java.scrapper.domain.dao.jdbc.JdbcChatDao;
-import edu.java.scrapper.domain.exception.AlreadyExistException;
-import edu.java.scrapper.domain.exception.NotExistException;
+import edu.java.scrapper.exception.AlreadyExistException;
+import edu.java.scrapper.exception.NotExistException;
 import edu.java.scrapper.domain.model.chat.Chat;
 import java.util.List;
+import edu.java.scrapper.exception.RepeatedRegistrationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,7 +23,7 @@ public class ChatDaoTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void addSuccessfullyTest() throws AlreadyExistException {
+    void addSuccessfullyTest() throws RepeatedRegistrationException {
         repository.add(22L);
 
         List<Chat> actualResult = repository.findAll();
@@ -43,7 +44,7 @@ public class ChatDaoTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void removeSuccessfullyTest() throws AlreadyExistException, NotExistException {
+    void removeSuccessfullyTest() throws RepeatedRegistrationException, NotExistException {
         repository.add(22L);
         repository.remove(22L);
 
@@ -64,7 +65,7 @@ public class ChatDaoTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void findAllTest() throws AlreadyExistException {
+    void findAllTest() throws RepeatedRegistrationException {
         repository.add(11L);
         repository.add(48L);
 

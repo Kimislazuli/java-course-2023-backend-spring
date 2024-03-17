@@ -1,4 +1,4 @@
-package edu.java.scrapper.domain.exception;
+package edu.java.scrapper.exception;
 
 public class NotExistException extends Exception {
     public NotExistException(String msg) {

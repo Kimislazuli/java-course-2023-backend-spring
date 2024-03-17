@@ -1,9 +1,9 @@
 package edu.java.scrapper.domain.dao.jdbc;
 
-import edu.java.scrapper.domain.exception.AlreadyExistException;
-import edu.java.scrapper.domain.exception.NotExistException;
 import edu.java.scrapper.domain.model.connection.ChatToLinkConnection;
 import edu.java.scrapper.domain.model.connection.ChatToLinkConnectionRowMapper;
+import edu.java.scrapper.exception.AlreadyExistException;
+import edu.java.scrapper.exception.NotExistException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -50,6 +50,19 @@ public class JdbcChatToLinkConnectionDao {
 
     public List<ChatToLinkConnection> findAll() {
         String query = "SELECT * FROM chat_to_link_connection";
+
         return client.sql(query).query(mapper).list();
+    }
+
+    public List<ChatToLinkConnection> findAllByChatId(long chatId) {
+        String query = "SELECT * FROM chat_to_link_connection WHERE chat_id = ?";
+
+        return client.sql(query).param(chatId).query(mapper).list();
+    }
+
+    public List<ChatToLinkConnection> findAllByLinkId(long linkId) {
+        String query = "SELECT * FROM chat_to_link_connection WHERE link_id = ?";
+
+        return client.sql(query).param(linkId).query(mapper).list();
     }
 }

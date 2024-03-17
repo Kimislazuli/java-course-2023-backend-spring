@@ -1,11 +1,12 @@
 package edu.java.scrapper.domain.dao.jdbc;
 
-import edu.java.scrapper.domain.exception.AlreadyExistException;
-import edu.java.scrapper.domain.exception.NotExistException;
 import edu.java.scrapper.domain.model.link.Link;
 import edu.java.scrapper.domain.model.link.LinkRowMapper;
+import edu.java.scrapper.exception.AlreadyExistException;
+import edu.java.scrapper.exception.NotExistException;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -47,6 +48,25 @@ public class JdbcLinkDao {
 
     public List<Link> findAll() {
         String query = "SELECT * FROM link";
+
+        return client.sql(query).query(mapper).list();
+    }
+
+    public Optional<Link> getLinkByUrl(String url) {
+        String query = "SELECT FROM link WHERE url = ?";
+
+        return client.sql(query).param(url).query(mapper).optional();
+    }
+
+    public Optional<Link> getLinkById(long id) {
+        String query = "SELECT FROM link WHERE id = ?";
+
+        return client.sql(query).param(id).query(mapper).optional();
+    }
+
+    public List<Link> findOldLinksToCheck() {
+        String query = "SELECT * FROM link WHERE last_update < NOW() - INTERVAL '5 hours'";
+
         return client.sql(query).query(mapper).list();
     }
 }
