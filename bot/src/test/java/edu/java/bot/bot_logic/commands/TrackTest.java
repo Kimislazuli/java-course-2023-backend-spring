@@ -1,10 +1,10 @@
-package edu.java.bot.commands_test;
+package edu.java.bot.bot_logic.commands;
 
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.bot.botLogic.commands.TrackCommand;
+import edu.java.bot.bot_logic.commands.TrackCommand;
 import edu.java.bot.model.Link;
 import edu.java.bot.repository.LinkRepository;
 import edu.java.bot.service.LinkService;
@@ -45,7 +45,7 @@ public class TrackTest {
         String actualResult = (String) handled.getParameters().get("text");
         List<Link> links = linkRepository.getUserLinks(7L);
 
-        assertThat(links.getFirst().getUrl()).isEqualTo("link");
+        assertThat(links.getFirst().url()).isEqualTo("link");
         assertThat(actualResult).startsWith("Ссылка ");
         assertThat(actualResult).endsWith(" успешно добавлена.");
     }

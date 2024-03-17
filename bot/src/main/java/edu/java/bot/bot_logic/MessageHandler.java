@@ -1,9 +1,9 @@
-package edu.java.bot.botLogic;
+package edu.java.bot.bot_logic;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.bot.botLogic.commands.Command;
-import edu.java.bot.botLogic.commands.HelpCommand;
+import edu.java.bot.bot_logic.commands.Command;
+import edu.java.bot.bot_logic.commands.HelpCommand;
 import edu.java.bot.model.User;
 import edu.java.bot.repository.UserRepository;
 import java.io.IOException;
@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@SuppressWarnings("MissingSwitchDefault")
 public class MessageHandler {
     private static final String WRONG_COMMAND_MESSAGE =
         "Я не понимаю, какой функцией Вы хотите воспользоваться. "
@@ -32,6 +33,8 @@ public class MessageHandler {
     private static final String HELP = "/help";
     private static final String START = "/start";
     private static final String TRACK = "/track";
+    private static final String UNTRACK = "/untrack";
+    private static final String LIST = "/list";
     private static final int OK = 200;
 
     private final Map<String, Command> commands;
@@ -61,37 +64,41 @@ public class MessageHandler {
 
     private SendMessage handleCommandInput(Update update, String messageText, Long userId, User user) {
         Command command = commands.get(messageText);
-        if (user == null || (messageText.equals("/list") || messageText.equals(HELP))) {
-            if (List.of(HELP, START).contains(messageText)) {
+        if (user == null || command.command().equals(LIST)) {
+            if (List.of(HELP, START).contains(messageText) || (command.command().equals(LIST) && user != null)) {
                 return command.handle(update);
             }
             return new SendMessage(userId, NOT_AVAILABLE_COMMAND_MESSAGE);
-        } else {
-            if (messageText.equals(START)) {
-                return new SendMessage(userId, "Вы уже авторизованы");
-            } else if (messageText.equals(TRACK)) {
-                user.setState(State.WAIT_FOR_LINK_TO_ADD);
-            } else {
-                user.setState(State.WAIT_FOR_LINK_TO_REMOVE);
-            }
-            return new SendMessage(userId, "Отправьте ссылку");
         }
+        switch (messageText) {
+            case START -> {
+                return new SendMessage(userId, "Вы уже авторизованы");
+            }
+            case TRACK -> user.setState(State.WAIT_FOR_LINK_TO_ADD);
+            case UNTRACK -> user.setState(State.WAIT_FOR_LINK_TO_REMOVE);
+        }
+        return new SendMessage(userId, "Отправьте ссылку");
+
     }
 
     private SendMessage handleOtherInput(Update update, String messageText, Long userId, User user) {
-        if (user.getState() == State.DEFAULT) {
-            return new SendMessage(userId, WRONG_COMMAND_MESSAGE);
-        } else if (user.getState() == State.WAIT_FOR_LINK_TO_ADD) {
-            if (isLinkCorrect(messageText)) {
-                Command command = commands.get(TRACK);
-                user.setState(State.DEFAULT);
-                return command.handle(update);
+        switch (user.getState()) {
+            case DEFAULT -> {
+                return new SendMessage(userId, WRONG_COMMAND_MESSAGE);
             }
-        } else if (user.getState() == State.WAIT_FOR_LINK_TO_REMOVE) {
-            if (isLinkCorrect(messageText)) {
-                Command command = commands.get("/untrack");
-                user.setState(State.DEFAULT);
-                return command.handle(update);
+            case WAIT_FOR_LINK_TO_ADD -> {
+                if (isLinkCorrect(messageText)) {
+                    Command command = commands.get(TRACK);
+                    user.setState(State.DEFAULT);
+                    return command.handle(update);
+                }
+            }
+            case WAIT_FOR_LINK_TO_REMOVE -> {
+                if (isLinkCorrect(messageText)) {
+                    Command command = commands.get(UNTRACK);
+                    user.setState(State.DEFAULT);
+                    return command.handle(update);
+                }
             }
         }
         return new SendMessage(userId, WRONG_LINK_MESSAGE);
