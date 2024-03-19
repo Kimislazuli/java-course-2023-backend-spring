@@ -16,11 +16,11 @@ public class BotClient {
         webClient = builder.baseUrl(baseUrl).build();
     }
 
-    public void registerChat(Long id, String url, String description, List<Long> tgChatIds) {
+    public void updates(Long linkId, String url, String description, List<Long> tgChatIds) {
         webClient.post()
             .uri(UPDATES)
             .contentType(MediaType.APPLICATION_JSON)
-            .body(BodyInserters.fromValue(new LinkUpdate(id, url, description, tgChatIds)))
+            .body(BodyInserters.fromValue(new LinkUpdate(linkId, url, description, tgChatIds)))
             .retrieve()
             .bodyToMono(String.class)
             .blockOptional();

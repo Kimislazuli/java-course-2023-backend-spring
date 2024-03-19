@@ -31,7 +31,7 @@ public class ScrapperController implements ScrapperApi {
 
     @Override
     public ResponseEntity<Void> addLink(@RequestHeader("Tg-Chat-Id") Long id, AddLinkRequest addLinkRequest) {
-        log.info("Process request on /links POST for {} and {}", id, addLinkRequest);
+        log.info("Process request on /links POST for id {} and request {}", id, addLinkRequest);
         return ResponseEntity.ok().build();
     }
 
