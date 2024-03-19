@@ -10,8 +10,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MigrationTest extends IntegrationTest {
     @Test
     public void chatTableTest() throws SQLException {
-        try (Connection connection = POSTGRES.createConnection("")) {
-            PreparedStatement sqlQuery = connection.prepareStatement("SELECT * FROM public.chat");
+        try (Connection connection = POSTGRES.createConnection("");
+             PreparedStatement sqlQuery = connection.prepareStatement("SELECT * FROM public.chat")) {
             String actualResult = sqlQuery.executeQuery().getMetaData().getColumnName(1);
             assertThat(actualResult).isEqualTo("id");
         }
