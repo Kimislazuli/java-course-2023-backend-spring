@@ -6,12 +6,14 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import edu.java.bot.bot_logic.commands.TrackCommand;
 import edu.java.bot.bot_logic.commands.UntrackCommand;
+import edu.java.bot.client.ScrapperClient;
 import edu.java.bot.model.Link;
 import edu.java.bot.repository.LinkRepository;
 import edu.java.bot.service.LinkService;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -37,7 +39,9 @@ public class UntrackTest {
     }
 
     LinkRepository linkRepository = new LinkRepository();
-    LinkService linkService = new LinkService(linkRepository);
+    @MockBean
+    ScrapperClient scrapperClient;
+    LinkService linkService = new LinkService(linkRepository, scrapperClient);
     TrackCommand trackCommand = new TrackCommand(linkService);
     UntrackCommand untrackCommand = new UntrackCommand(linkService);
 
