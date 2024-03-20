@@ -32,5 +32,4 @@ public class BotClient {
             .bodyToMono(String.class)
             .blockOptional();
     }
-
 }
