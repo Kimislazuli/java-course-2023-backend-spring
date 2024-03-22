@@ -5,14 +5,19 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-public class User {
+public class Chat {
     private final Long telegramId;
 
     @Setter
     private State state;
 
-    public User(Long telegramId) {
+    public Chat(Long telegramId) {
         this.telegramId = telegramId;
         this.state = State.DEFAULT;
+    }
+
+    public Chat(Long telegramId, int state) {
+        this.telegramId = telegramId;
+        this.state = State.values()[state];
     }
 }
