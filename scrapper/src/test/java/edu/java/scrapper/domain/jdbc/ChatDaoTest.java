@@ -27,7 +27,7 @@ public class ChatDaoTest extends IntegrationTest {
 
         List<Chat> actualResult = repository.findAll();
 
-        assertThat(actualResult).containsExactly(new Chat(22L));
+        assertThat(actualResult).containsExactly(new Chat(22L, 1));
     }
 
     @Test
@@ -70,6 +70,6 @@ public class ChatDaoTest extends IntegrationTest {
 
         List<Chat> actualResult = repository.findAll();
 
-        assertThat(actualResult).containsExactlyInAnyOrder(new Chat(11L), new Chat(48L));
+        assertThat(actualResult).containsExactlyInAnyOrder(new Chat(11L, 1), new Chat(48L, 1));
     }
 }

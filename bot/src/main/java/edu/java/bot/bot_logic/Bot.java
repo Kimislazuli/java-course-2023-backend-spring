@@ -37,8 +37,9 @@ public class Bot implements AutoCloseable, UpdatesListener {
                 if (update.message() != null) {
                     log.info("processing {}", update);
                     telegramBot.execute(messageHandler.handleRequest(update));
-                    telegramBot.execute(createSetMyCommand().scope(new BotCommandsScopeChat(update.message().chat()
-                        .id())));
+                    telegramBot.execute(createSetMyCommand()
+                        .scope(new BotCommandsScopeChat(update.message().chat().id()))
+                    );
                 }
             }
         );

@@ -24,6 +24,10 @@ public class JdbcTgChatService implements TgChatService {
     public void register(long tgChatId) throws RepeatedRegistrationException {
         Optional<Chat> chatOptional = chatDao.getById(tgChatId);
 
+        if (tgChatId <= 0) {
+            throw new IllegalArgumentException("Id should be positive");
+        }
+
         if (chatOptional.isPresent()) {
             throw new RepeatedRegistrationException("This chat already exists");
         }
@@ -54,5 +58,15 @@ public class JdbcTgChatService implements TgChatService {
         }
 
         chatDao.remove(tgChatId);
+    }
+
+    @Override
+    public Optional<Chat> getChat(long tgChatId) {
+        return chatDao.getById(tgChatId);
+    }
+
+    @Override
+    public void setState(long chatId, int state) {
+        chatDao.setState(chatId, state);
     }
 }

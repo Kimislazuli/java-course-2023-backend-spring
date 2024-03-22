@@ -18,7 +18,7 @@ public class BotClient {
         webClient = builder.baseUrl(baseUrl).build();
     }
 
-    public void sendUpdates(Long id, String url, String description, List<Long> tgChatIds) {
+    public void updates(Long id, String url, String description, List<Long> tgChatIds) {
         webClient.post()
             .uri(UPDATES)
             .contentType(MediaType.APPLICATION_JSON)

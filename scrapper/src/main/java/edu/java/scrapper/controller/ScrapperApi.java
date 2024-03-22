@@ -3,6 +3,7 @@ package edu.java.scrapper.controller;
 import edu.java.models.dto.request.AddLinkRequest;
 import edu.java.models.dto.request.RemoveLinkRequest;
 import edu.java.models.dto.response.ApiErrorResponse;
+import edu.java.models.dto.response.ChatResponse;
 import edu.java.models.dto.response.LinkResponse;
 import edu.java.models.dto.response.ListLinksResponse;
 import edu.java.scrapper.exception.AlreadyExistException;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,7 +32,8 @@ public interface ScrapperApi {
                                         schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping("/tg-chat/{id}")
-    void registerChat(@PathVariable Long id) throws RepeatedRegistrationException, AlreadyExistException;
+    ResponseEntity<Void> registerChat(@PathVariable Long id)
+        throws RepeatedRegistrationException, AlreadyExistException;
 
     @Operation(summary = "Удалить чат")
     @ApiResponses(value = {
@@ -44,6 +47,26 @@ public interface ScrapperApi {
     })
     @DeleteMapping("/tg-chat/{id}")
     void deleteChat(@PathVariable Long id) throws NotExistException;
+
+    @Operation(summary = "Получить данные о чате")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Чат успешно удалён")})
+    @GetMapping("/tg-chat/{id}")
+    ResponseEntity<ChatResponse> getChat(@PathVariable Long id);
+
+    @Operation(summary = "Зарегистрировать чат")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Чат зарегистрирован"),
+        @ApiResponse(responseCode = "400", description = "Некорректные параметры запроса",
+                     content = @Content(mediaType = "application/json",
+                                        schema = @Schema(implementation = ApiErrorResponse.class))),
+        @ApiResponse(responseCode = "409", description = "Чат уже зарегистрирован",
+                     content = @Content(mediaType = "application/json",
+                                        schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    @PostMapping("/tg-chat/{id}/change_state")
+    ResponseEntity<Void> changeChatState(@PathVariable Long id, int state)
+        throws RepeatedRegistrationException, AlreadyExistException;
 
     @Operation(summary = "Получить все отслеживаемые ссылки")
     @ApiResponses(value = {

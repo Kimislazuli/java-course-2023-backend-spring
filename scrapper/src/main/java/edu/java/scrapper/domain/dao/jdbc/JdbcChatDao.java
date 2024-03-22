@@ -7,9 +7,11 @@ import edu.java.scrapper.exception.RepeatedRegistrationException;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class JdbcChatDao {
@@ -56,5 +58,13 @@ public class JdbcChatDao {
         String query = "SELECT * FROM chat WHERE id = ?";
 
         return client.sql(query).param(id).query(mapper).optional();
+    }
+
+    public void setState(long chatId, int state) {
+        if (state < 0 || state > 2) {
+            throw new IllegalArgumentException("States have numbers from 0 to 2.");
+        }
+        String query = "UPDATE chat SET state = ? WHERE id = ?";
+        log.info(String.valueOf(client.sql(query).param(state).param(chatId).update()));
     }
 }

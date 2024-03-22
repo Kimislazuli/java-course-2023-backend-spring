@@ -8,11 +8,13 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class JdbcLinkDao {
@@ -73,12 +75,12 @@ public class JdbcLinkDao {
     public void updateCheckTime(long linkId, OffsetDateTime timestamp) {
         String query = "UPDATE link SET last_check = ? WHERE id = ?";
 
-        client.sql(query).param(linkId).param(timestamp).update();
+        client.sql(query).param(timestamp).param(linkId).update();
     }
 
     public void updateUpdateTime(long linkId, OffsetDateTime timestamp) {
         String query = "UPDATE link SET last_update = ? WHERE id = ?";
 
-        client.sql(query).param(linkId).param(timestamp).update();
+        client.sql(query).param(timestamp).param(linkId).update();
     }
 }

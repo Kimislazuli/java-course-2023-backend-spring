@@ -25,8 +25,23 @@ public class ScrapperExceptionHandler {
         );
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidParameters(
+        Exception ex
+    ) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            new ApiErrorResponse(
+                "Некорректный id, в качестве идентификатора используются исключительно натуральные числа",
+                HttpStatus.BAD_REQUEST.toString(),
+                ex.getClass().getSimpleName(),
+                ex.getMessage(),
+                Arrays.stream(ex.getStackTrace()).map(StackTraceElement::toString).toArray(String[]::new)
+            )
+        );
+    }
+
     @ExceptionHandler(RepeatedRegistrationException.class)
-    public ResponseEntity<ApiErrorResponse> handleInvalidParameters(Exception ex) {
+    public ResponseEntity<ApiErrorResponse> handleReRegistration(Exception ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiErrorResponse(
             "Повторная регистрация",
             HttpStatus.CONFLICT.toString(),

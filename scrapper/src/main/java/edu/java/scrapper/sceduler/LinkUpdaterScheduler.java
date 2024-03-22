@@ -68,6 +68,6 @@ public class LinkUpdaterScheduler {
     public void performTableUpdateAndTelegramNotification(long linkId, String url, OffsetDateTime updatedAt) {
         updaterService.update(linkId, updatedAt);
         List<Long> linkedChats = linkService.linkedChats(linkId);
-        botClient.sendUpdates(linkId, url, "link updated", linkedChats);
+        botClient.updates(linkId, url, "link updated", linkedChats);
     }
 }
