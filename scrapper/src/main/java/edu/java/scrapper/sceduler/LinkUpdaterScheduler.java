@@ -31,7 +31,7 @@ public class LinkUpdaterScheduler {
     @Scheduled(fixedDelayString = "${app.scheduler.interval}")
     public void update() {
         log.info("Check updates");
-        List<Link> links = updaterService.findOldLinksToUpdate(OffsetDateTime.now().minus(Duration.ofMinutes(10)));
+        List<Link> links = updaterService.findOldLinksToUpdate(OffsetDateTime.now().minus(Duration.ofSeconds(10)));
         for (Link link : links) {
             updaterService.check(link.id(), OffsetDateTime.now());
             if (link.url().contains("github")) {
@@ -51,7 +51,7 @@ public class LinkUpdaterScheduler {
         if (optionalGithubResponse.isPresent()) {
             GithubResponse githubResponse = optionalGithubResponse.get();
             if (link.lastUpdate().isBefore(githubResponse.lastModified())) {
-                performTableUpdateAndTelegramNotification(link.id(), link.url(), link.lastUpdate());
+                performTableUpdateAndTelegramNotification(link.id(), link.url(), githubResponse.lastModified());
             }
         }
     }
@@ -61,7 +61,7 @@ public class LinkUpdaterScheduler {
         int question = Integer.getInteger(urlParts[urlParts.length - 1]);
         StackOverflowResponse stackOverflowResponse = stackOverflowClient.fetchLastModificationTime(question);
         if (link.lastUpdate().isBefore(stackOverflowResponse.lastModified())) {
-            performTableUpdateAndTelegramNotification(link.id(), link.url(), link.lastUpdate());
+            performTableUpdateAndTelegramNotification(link.id(), link.url(), stackOverflowResponse.lastModified());
         }
     }
 
