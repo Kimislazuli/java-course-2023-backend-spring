@@ -54,7 +54,7 @@ public interface ScrapperApi {
     @GetMapping("/tg-chat/{id}")
     ResponseEntity<ChatResponse> getChat(@PathVariable Long id);
 
-    @Operation(summary = "Зарегистрировать чат")
+    @Operation(summary = "Изменить состояние чата")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Чат зарегистрирован"),
         @ApiResponse(responseCode = "400", description = "Некорректные параметры запроса",
@@ -66,7 +66,7 @@ public interface ScrapperApi {
     })
     @PostMapping("/tg-chat/{id}/change_state")
     ResponseEntity<Void> changeChatState(@PathVariable Long id, int state)
-        throws RepeatedRegistrationException, AlreadyExistException;
+        throws RepeatedRegistrationException, AlreadyExistException, NotExistException;
 
     @Operation(summary = "Получить все отслеживаемые ссылки")
     @ApiResponses(value = {
@@ -98,7 +98,8 @@ public interface ScrapperApi {
                                         schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping("/links")
-    void addLink(Long id, AddLinkRequest addLinkRequest) throws RepeatedRegistrationException, AlreadyExistException;
+    void addLink(Long id, AddLinkRequest addLinkRequest)
+        throws RepeatedRegistrationException, AlreadyExistException, NotExistException;
 
     @Operation(summary = "Убрать отслеживание ссылки")
     @ApiResponses(value = {

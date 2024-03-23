@@ -6,9 +6,7 @@ import edu.java.scrapper.service.UpdaterService;
 import java.time.OffsetDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
 public class JdbcUpdaterService implements UpdaterService {
     private final JdbcLinkDao linkDao;

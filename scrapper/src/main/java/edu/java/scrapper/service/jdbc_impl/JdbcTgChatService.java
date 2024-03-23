@@ -11,9 +11,7 @@ import edu.java.scrapper.service.TgChatService;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
 public class JdbcTgChatService implements TgChatService {
     private final JdbcLinkDao linkDao;
@@ -45,7 +43,7 @@ public class JdbcTgChatService implements TgChatService {
 
         List<Long> links = connectionDao.findAllByChatId(tgChatId)
             .stream()
-            .map(ChatToLinkConnection::linkId)
+            .map(ChatToLinkConnection::getLinkId)
             .toList();
         for (Long linkId : links) {
             List<ChatToLinkConnection> connections = connectionDao.findAllByLinkId(linkId);

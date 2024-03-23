@@ -15,9 +15,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
 
-@Service
+@Slf4j
 @RequiredArgsConstructor
 public class JdbcLinkService implements LinkService {
     private final JdbcLinkDao linkDao;
@@ -40,7 +40,7 @@ public class JdbcLinkService implements LinkService {
             link = new Link(linkId, url.toString(), timestamp, timestamp);
         } else {
             link = optionalLink.get();
-            linkId = link.id();
+            linkId = link.getId();
         }
 
         if (isPairExists(tgChatId, linkId)) {
@@ -60,12 +60,12 @@ public class JdbcLinkService implements LinkService {
             throw new NotExistException("Link doesn't exist");
         } else {
             link = optionalLink.get();
-            linkId = link.id();
+            linkId = link.getId();
         }
 
         long amountOfConnections = connectionDao.findAll()
             .stream()
-            .filter(p -> p.linkId() == linkId)
+            .filter(p -> p.getLinkId() == linkId)
             .count();
 
         connectionDao.remove(tgChatId, linkId);
@@ -83,8 +83,8 @@ public class JdbcLinkService implements LinkService {
     public Collection<Link> listAll(long tgChatId) {
         return connectionDao.findAll()
             .stream()
-            .filter(e -> e.chatId() == tgChatId)
-            .map(ChatToLinkConnection::linkId)
+            .filter(e -> e.getChatId() == tgChatId)
+            .map(ChatToLinkConnection::getLinkId)
             .map(linkDao::getLinkById)
             .filter(Optional::isPresent)
             .map(Optional::get)
@@ -92,17 +92,17 @@ public class JdbcLinkService implements LinkService {
     }
 
     @Override
-    public List<Long> linkedChats(long linkId) {
+    public List<Long> linkedChatIds(long linkId) {
         return connectionDao.findAllByLinkId(linkId)
             .stream()
-            .map(ChatToLinkConnection::chatId)
+            .map(ChatToLinkConnection::getChatId)
             .toList();
     }
 
     private boolean isChatExists(long id) {
         long chatCount = chatDao.findAll()
             .stream()
-            .filter(c -> c.id() == id)
+            .filter(c -> c.getId() == id)
             .count();
 
         return chatCount == 1;
@@ -111,7 +111,7 @@ public class JdbcLinkService implements LinkService {
     private boolean isPairExists(long chatId, long linkId) {
         long chatCount = connectionDao.findAll()
             .stream()
-            .filter(c -> c.chatId() == chatId && c.linkId() == linkId)
+            .filter(c -> c.getChatId() == chatId && c.getLinkId() == linkId)
             .count();
 
         return chatCount == 1;
