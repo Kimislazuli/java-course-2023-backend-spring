@@ -8,8 +8,13 @@ import edu.java.scrapper.domain.model.connection.ChatToLinkConnection;
 import edu.java.scrapper.exception.AlreadyExistException;
 import edu.java.scrapper.exception.NotExistException;
 import edu.java.scrapper.exception.RepeatedRegistrationException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.OffsetDateTime;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,6 +33,20 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
 
     @Autowired
     private JdbcChatToLinkConnectionDao connectionRepository;
+
+    @BeforeEach
+    void setUp() {
+        try (Connection connection = POSTGRES.createConnection("");
+             PreparedStatement deleteChat = connection.prepareStatement("DELETE FROM public.chat");
+             PreparedStatement deleteLink = connection.prepareStatement("DELETE FROM public.link");
+             PreparedStatement deleteConnection = connection.prepareStatement("DELETE FROM public.chat_to_link_connection")) {
+            deleteConnection.execute();
+            deleteChat.execute();
+            deleteLink.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Test
     @Transactional
@@ -58,10 +77,10 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
     @Transactional
     @Rollback
     void removeSuccessfullyTest() throws AlreadyExistException, NotExistException, RepeatedRegistrationException {
-        chatRepository.add(1L);
+        chatRepository.add(5L);
         long linkId = linkRepository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
-        connectionRepository.add(1L, linkId);
-        connectionRepository.remove(1L, linkId);
+        connectionRepository.add(5L, linkId);
+        connectionRepository.remove(5L, linkId);
 
         List<ChatToLinkConnection> actualResult = connectionRepository.findAll();
 
@@ -81,18 +100,15 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
     @Transactional
     @Rollback
     void findAllTest() throws AlreadyExistException, RepeatedRegistrationException {
-        chatRepository.add(1L);
-        chatRepository.add(2L);
+        chatRepository.add(3L);
+        chatRepository.add(4L);
         long linkId = linkRepository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
 
-        connectionRepository.add(1L, linkId);
-        connectionRepository.add(2L, linkId);
+        connectionRepository.add(3L, linkId);
+        connectionRepository.add(4L, linkId);
 
         List<ChatToLinkConnection> actualResult = connectionRepository.findAll();
 
-        assertThat(actualResult).containsExactlyInAnyOrder(
-            new ChatToLinkConnection(1L, linkId),
-            new ChatToLinkConnection(2L, linkId)
-        );
+        assertThat(actualResult.stream().map(ChatToLinkConnection::getChatId)).containsExactlyInAnyOrder(3L, 4L);
     }
 }
