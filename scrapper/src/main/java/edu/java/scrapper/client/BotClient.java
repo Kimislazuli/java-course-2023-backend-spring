@@ -1,11 +1,13 @@
 package edu.java.scrapper.client;
 
 import edu.java.models.dto.LinkUpdate;
+import edu.java.models.dto.response.ApiErrorResponse;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 public class BotClient {
@@ -16,12 +18,17 @@ public class BotClient {
         webClient = builder.baseUrl(baseUrl).build();
     }
 
-    public void updates(Long linkId, String url, String description, List<Long> tgChatIds) {
+    public void updates(Long id, String url, String description, List<Long> tgChatIds) {
         webClient.post()
             .uri(UPDATES)
             .contentType(MediaType.APPLICATION_JSON)
-            .body(BodyInserters.fromValue(new LinkUpdate(linkId, url, description, tgChatIds)))
+            .bodyValue(new LinkUpdate(id, url, description, tgChatIds))
             .retrieve()
+            .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(ApiErrorResponse.class)
+                .flatMap(error -> {
+                    log.error("Error: " + error.description() + " " + error.exceptionMessage());
+                    return Mono.error(new RuntimeException(error.code() + " " + error.exceptionMessage()));
+                }))
             .bodyToMono(String.class)
             .blockOptional();
     }
