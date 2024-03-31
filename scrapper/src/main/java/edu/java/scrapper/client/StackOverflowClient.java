@@ -2,11 +2,14 @@ package edu.java.scrapper.client;
 
 import edu.java.scrapper.dto.stackoverflow.StackOverflowResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.util.retry.Retry;
 
 public class StackOverflowClient {
     private final WebClient webClient;
+    private final Retry retryBackoff;
 
-    public StackOverflowClient(WebClient.Builder builder, String baseUrl) {
+    public StackOverflowClient(WebClient.Builder builder, String baseUrl, Retry retryBackoff) {
+        this.retryBackoff = retryBackoff;
         webClient = builder.baseUrl(baseUrl).build();
     }
 
@@ -19,6 +22,7 @@ public class StackOverflowClient {
                 .build())
             .retrieve()
             .bodyToMono(StackOverflowResponse.class)
+            .retryWhen(retryBackoff)
             .block();
     }
 }

@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 @Slf4j
 public class ScrapperClient {
@@ -25,8 +26,10 @@ public class ScrapperClient {
     private final static String TG_CHAT_ID_WITH_STATE = "/tg-chat/{id}/change_state";
     private final static String LINKS = "/links";
     private final static String TG_CHAT_ID_HEADER = "Tg-Chat-Id";
+    private final Retry retryBackoff;
 
-    public ScrapperClient(WebClient.Builder builder, String baseUrl) {
+    public ScrapperClient(WebClient.Builder builder, String baseUrl, Retry retryBackoff) {
+        this.retryBackoff = retryBackoff;
         webClient = builder.baseUrl(baseUrl).build();
     }
 
@@ -39,7 +42,9 @@ public class ScrapperClient {
                 r -> r.bodyToMono(ApiErrorResponse.class)
                     .flatMap(apiErrorResponse -> Mono.error(new ApiResponseException(
                         apiErrorResponse.exceptionMessage())))
-            ).bodyToMono(String.class).block();
+            ).bodyToMono(String.class)
+            .retryWhen(retryBackoff)
+            .block();
     }
 
     public void updateChatState(Long id, int state) {
@@ -48,6 +53,7 @@ public class ScrapperClient {
             .header("State", String.valueOf(state))
             .retrieve()
             .bodyToMono(String.class)
+            .retryWhen(retryBackoff)
             .blockOptional();
     }
 
@@ -56,15 +62,17 @@ public class ScrapperClient {
             .uri(builder -> builder.path(TG_CHAT_ID).build(id))
             .retrieve()
             .bodyToMono(String.class)
+            .retryWhen(retryBackoff)
             .blockOptional();
     }
 
     public Optional<Chat> getChat(Long id) {
         ChatResponse response = webClient.get()
-                .uri(builder -> builder.path(TG_CHAT_ID).build(id))
-                .retrieve()
-                .bodyToMono(ChatResponse.class)
-                .block();
+            .uri(builder -> builder.path(TG_CHAT_ID).build(id))
+            .retrieve()
+            .bodyToMono(ChatResponse.class)
+            .retryWhen(retryBackoff)
+            .block();
         return response.id() != -1 ? Optional.of(new Chat(response.id(), response.state())) : Optional.empty();
     }
 
@@ -74,6 +82,7 @@ public class ScrapperClient {
             .header(TG_CHAT_ID_HEADER, id.toString())
             .retrieve()
             .bodyToMono(ListLinksResponse.class)
+            .retryWhen(retryBackoff)
             .block();
     }
 
@@ -91,6 +100,7 @@ public class ScrapperClient {
                         apiErrorResponse.exceptionMessage())))
             )
             .bodyToMono(LinkResponse.class)
+            .retryWhen(retryBackoff)
             .blockOptional();
     }
 
@@ -108,6 +118,7 @@ public class ScrapperClient {
                         apiErrorResponse.exceptionMessage())))
             )
             .bodyToMono(LinkResponse.class)
+            .retryWhen(retryBackoff)
             .block();
     }
 }

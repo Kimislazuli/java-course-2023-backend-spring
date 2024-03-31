@@ -1,11 +1,13 @@
 package edu.java.scrapper.client;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.util.retry.Retry;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
@@ -14,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class BotClientTest {
     static WireMockServer server = new WireMockServer();
-    BotClient client = new BotClient(WebClient.builder(), "http://localhost:8080");
+    BotClient client = new BotClient(WebClient.builder(), "http://localhost:8080", Retry.backoff(2, Duration.ofSeconds(200)));
 
     @BeforeAll
     static void setUp() {

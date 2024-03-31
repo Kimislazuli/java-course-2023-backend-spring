@@ -12,6 +12,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.util.retry.Retry;
+import java.time.Duration;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
@@ -47,7 +49,7 @@ public class ListCommandTest {
         server.stop();
     }
 
-    ScrapperClient client = new ScrapperClient(WebClient.builder(), "http://localhost:8080");
+    ScrapperClient client = new ScrapperClient(WebClient.builder(), "http://localhost:8080", Retry.backoff(2, Duration.ofMinutes(2)));
     LinkService linkService = new LinkService(client);
     ListCommand listCommand = new ListCommand(linkService);
 

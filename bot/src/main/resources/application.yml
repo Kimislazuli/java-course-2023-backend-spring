@@ -1,5 +1,19 @@
 app:
   telegram-token: ${TOKEN}
+  retry-config:
+    back-off-type: exponential
+    attempts: 1
+    status-codes:
+      - 500
+      - 502
+      - 503
+      - 504
+    min-delay: 100
+    jitter: 0.5
+  time-rate-config:
+    capacity: 20
+    tokens: 20
+    duration: 6000000
 
 spring:
   application:

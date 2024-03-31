@@ -6,12 +6,15 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.util.retry.Retry;
 
 @Slf4j
 public class GithubClient {
     private final WebClient webClient;
+    private final Retry retryBackoff;
 
-    public GithubClient(WebClient.Builder builder, String baseUrl) {
+    public GithubClient(WebClient.Builder builder, String baseUrl, Retry retryBackoff) {
+        this.retryBackoff = retryBackoff;
         webClient = builder.baseUrl(baseUrl).build();
     }
 
@@ -24,6 +27,7 @@ public class GithubClient {
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<GithubResponse>>() {
                 })
+                .retryWhen(retryBackoff)
                 .blockOptional()
                 .map(List::getFirst);
         } catch (Exception e) {

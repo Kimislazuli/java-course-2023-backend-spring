@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.util.retry.Retry;
+import java.time.Duration;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.delete;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -17,7 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ScrapperClientTest {
     static WireMockServer server = new WireMockServer();
-    ScrapperClient client = new ScrapperClient(WebClient.builder(), "http://localhost:8080");
+    ScrapperClient client =
+        new ScrapperClient(WebClient.builder(), "http://localhost:8080", Retry.backoff(2, Duration.ofMinutes(2)));
 
     @BeforeAll
     static void setUp() {

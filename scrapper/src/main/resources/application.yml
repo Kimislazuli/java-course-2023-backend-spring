@@ -4,6 +4,20 @@ app:
     interval: 10000
     force-check-delay: 10000
   database-access-type: jpa
+  retry-config:
+    back-off-type: exponential
+    attempts: 1
+    status-codes:
+      - 500
+      - 502
+      - 503
+      - 504
+    min-delay: 100
+    jitter: 0.5
+  time-rate-config:
+    capacity: 20
+    tokens: 20
+    duration: 6000000
 
 github:
   base-url: https://api.github.com
@@ -25,7 +39,7 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
 
 server:
   port: 8080

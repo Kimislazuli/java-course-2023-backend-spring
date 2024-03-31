@@ -8,14 +8,17 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 @Slf4j
 public class BotClient {
     private final WebClient webClient;
     private final static String UPDATES = "/updates";
+    private final Retry retryBackoff;
 
-    public BotClient(WebClient.Builder builder, String baseUrl) {
+    public BotClient(WebClient.Builder builder, String baseUrl, Retry retry) {
         webClient = builder.baseUrl(baseUrl).build();
+        this.retryBackoff = retry;
     }
 
     public void updates(Long id, String url, String description, List<Long> tgChatIds) {
@@ -30,6 +33,7 @@ public class BotClient {
                     return Mono.error(new RuntimeException(error.code() + " " + error.exceptionMessage()));
                 }))
             .bodyToMono(String.class)
+            .retryWhen(retryBackoff)
             .blockOptional();
     }
 }
