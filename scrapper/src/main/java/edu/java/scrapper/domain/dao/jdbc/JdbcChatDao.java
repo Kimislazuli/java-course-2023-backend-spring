@@ -3,7 +3,6 @@ package edu.java.scrapper.domain.dao.jdbc;
 import edu.java.scrapper.domain.model.chat.Chat;
 import edu.java.scrapper.domain.model.chat.ChatRowMapper;
 import edu.java.scrapper.exception.NotExistException;
-import edu.java.scrapper.exception.RepeatedRegistrationException;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -18,24 +17,12 @@ public class JdbcChatDao {
     private final JdbcClient client;
     private final ChatRowMapper mapper;
 
-    // Пока метод добавления возвращает по факту свой же параметр (чтобы формировать с
-    // DAO для ссылок единый контракт),
-    // Я не знаю, как лучше сделать. Было бы логично отдавать айди, но у меня это
-    // не генерируемое суррогатное значение, а то же, которое я передаю, так что
-    // я заранее его знаю. Не нашла в интернете контракта для таких методов
-    // + так и не поняла, какой эксепшн ловить при повторной попытке выполнить операцию.
-    // нужно ли это вообще делать или на уровне запроса решать проблему?
+    public Optional<Long> add(long chatId) {
+        String query = "INSERT INTO chat (id) VALUES (?) ON CONFLICT DO NOTHING";
 
-    public long add(long chatId) throws RepeatedRegistrationException {
-        try {
-            String query = "INSERT INTO chat (id) VALUES (?)";
+        int rowsAffected = client.sql(query).param(chatId).update();
 
-            int rowsAffected = client.sql(query).param(chatId).update();
-
-            return rowsAffected == 1 ? chatId : -1;
-        } catch (Exception e) {
-            throw new RepeatedRegistrationException("This chat already exists");
-        }
+        return rowsAffected == 1 ? Optional.of(chatId) : Optional.empty();
     }
 
     public void remove(long chatId) throws NotExistException {

@@ -3,10 +3,10 @@ package edu.java.scrapper.domain.jdbc;
 import edu.java.scrapper.IntegrationTest;
 import edu.java.scrapper.domain.dao.jdbc.JdbcLinkDao;
 import edu.java.scrapper.domain.model.link.Link;
-import edu.java.scrapper.exception.AlreadyExistException;
 import edu.java.scrapper.exception.NotExistException;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,8 +23,8 @@ public class LinkDaoTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void addSuccessfullyTest() throws AlreadyExistException {
-        long id = repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
+    void addSuccessfullyTest() {
+        long id = repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
 
         List<Link> actualResult = repository.findAll();
 
@@ -35,17 +35,17 @@ public class LinkDaoTest extends IntegrationTest {
     @Transactional
     @Rollback
     void addExistedChatTest() {
-        assertThrows(AlreadyExistException.class, () -> {
-            repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
-            repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
-        });
+        repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
+        Optional<Long> actualResult = repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
+
+        assertThat(actualResult).isEmpty();
     }
 
     @Test
     @Transactional
     @Rollback
-    void removeSuccessfullyTest() throws AlreadyExistException, NotExistException {
-        long id = repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
+    void removeSuccessfullyTest() throws NotExistException {
+        long id = repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
         repository.remove(id);
 
         List<Link> actualResult = repository.findAll();
@@ -65,9 +65,9 @@ public class LinkDaoTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void findAllTest() throws AlreadyExistException {
-        long firstId = repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
-        long secondId = repository.add("www.link.com", OffsetDateTime.MAX, OffsetDateTime.MAX);
+    void findAllTest() {
+        long firstId = repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        long secondId = repository.add("www.link.com", OffsetDateTime.MAX, OffsetDateTime.MAX).get();
 
         List<Link> actualResult = repository.findAll();
 
@@ -75,5 +75,31 @@ public class LinkDaoTest extends IntegrationTest {
             new Link(firstId, "www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN),
             new Link(secondId, "www.link.com", OffsetDateTime.MAX, OffsetDateTime.MAX)
         );
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    void getLinkByUrlTest() {
+        repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+
+        Optional<Link> actualResult = repository.getLinkByUrl("www.url.com");
+
+        assertThat(actualResult).isPresent();
+        assertThat(actualResult.get().url()).isEqualTo("www.url.com");
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void getLinkByIdTest() {
+        long id = repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+
+        Optional<Link> actualResult = repository.getLinkById(id);
+
+        assertThat(actualResult).isPresent();
+        assertThat(actualResult.get().id()).isEqualTo(id);
+        assertThat(actualResult.get().url()).isEqualTo("www.url.com");
     }
 }

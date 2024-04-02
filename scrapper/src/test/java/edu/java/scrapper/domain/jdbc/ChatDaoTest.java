@@ -4,8 +4,8 @@ import edu.java.scrapper.IntegrationTest;
 import edu.java.scrapper.domain.dao.jdbc.JdbcChatDao;
 import edu.java.scrapper.domain.model.chat.Chat;
 import edu.java.scrapper.exception.NotExistException;
-import edu.java.scrapper.exception.RepeatedRegistrationException;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,7 +22,7 @@ public class ChatDaoTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void addSuccessfullyTest() throws RepeatedRegistrationException {
+    void addSuccessfullyTest() {
         repository.add(22L);
 
         List<Chat> actualResult = repository.findAll();
@@ -34,16 +34,16 @@ public class ChatDaoTest extends IntegrationTest {
     @Transactional
     @Rollback
     void addExistedChatTest() {
-        assertThrows(RepeatedRegistrationException.class, () -> {
-            repository.add(22L);
-            repository.add(22L);
-        });
+        repository.add(22L);
+        Optional<Long> actualResult = repository.add(22L);
+
+        assertThat(actualResult).isEmpty();
     }
 
     @Test
     @Transactional
     @Rollback
-    void removeSuccessfullyTest() throws RepeatedRegistrationException, NotExistException {
+    void removeSuccessfullyTest() throws NotExistException {
         repository.add(22L);
         repository.remove(22L);
 
@@ -64,12 +64,25 @@ public class ChatDaoTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void findAllTest() throws RepeatedRegistrationException {
+    void getByIdTest() {
         repository.add(11L);
-        repository.add(48L);
 
-        List<Chat> actualResult = repository.findAll();
+        Optional<Chat> actualResult = repository.getById(11L);
 
-        assertThat(actualResult).containsExactlyInAnyOrder(new Chat(11L, 0), new Chat(48L, 0));
+        assertThat(actualResult).isPresent();
+        assertThat(actualResult.get().id()).isEqualTo(11L);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void setStateTest() {
+        repository.add(11L);
+
+        repository.setState(11L, 2);
+        Optional<Chat> actualResult = repository.getById(11L);
+
+        assertThat(actualResult).isPresent();
+        assertThat(actualResult.get().state()).isEqualTo(2);
     }
 }

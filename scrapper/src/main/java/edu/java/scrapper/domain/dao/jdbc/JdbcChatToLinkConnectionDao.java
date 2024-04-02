@@ -2,9 +2,9 @@ package edu.java.scrapper.domain.dao.jdbc;
 
 import edu.java.scrapper.domain.model.connection.ChatToLinkConnection;
 import edu.java.scrapper.domain.model.connection.ChatToLinkConnectionRowMapper;
-import edu.java.scrapper.exception.AlreadyExistException;
 import edu.java.scrapper.exception.NotExistException;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
@@ -15,23 +15,15 @@ public class JdbcChatToLinkConnectionDao {
     private final JdbcClient client;
     private final ChatToLinkConnectionRowMapper mapper;
 
-    // здесь аналогичная проблема: нет никакого айди, который можно было бы вернуть, в итоге
-    // в итоге возвращается количество задействованных строк, что не очень логично с точки
-    // зрения апи в целом.
+    public Optional<ChatToLinkConnection> add(long chatId, long linkId) {
+        String query = "INSERT INTO chat_to_link_connection (chat_id, link_id) VALUES (?, ?) ON CONFLICT DO NOTHING";
 
-    public long add(long chatId, long linkId) throws AlreadyExistException {
-        try {
-            String query = "INSERT INTO chat_to_link_connection (chat_id, link_id) VALUES (?, ?)";
+        int rowsAffected = client.sql(query)
+            .param(chatId)
+            .param(linkId)
+            .update();
 
-            int rowsAffected = client.sql(query)
-                .param(chatId)
-                .param(linkId)
-                .update();
-
-            return rowsAffected == 1 ? rowsAffected : -1;
-        } catch (Exception e) {
-            throw new AlreadyExistException("This pair already exists in table.");
-        }
+        return rowsAffected == 1 ? Optional.of(new ChatToLinkConnection(chatId, linkId)) : Optional.empty();
     }
 
     public void remove(long chatId, long linkId) throws NotExistException {
@@ -44,8 +36,7 @@ public class JdbcChatToLinkConnectionDao {
 
         if (rowsAffected == 0) {
             throw new NotExistException("This chat-link pair doesn't exist.");
-        } // ещё нужно как-то обрабатывать кейс отсутствия используемых айди в таблицах чатов/ссылок.
-        // пока не придумала, как их разделить.
+        }
     }
 
     public List<ChatToLinkConnection> findAll() {
@@ -64,5 +55,11 @@ public class JdbcChatToLinkConnectionDao {
         String query = "SELECT * FROM chat_to_link_connection WHERE link_id = ?";
 
         return client.sql(query).param(linkId).query(mapper).list();
+    }
+
+    public Optional<ChatToLinkConnection> findByComplexId(long chatId, long linkId) {
+        String query = "SELECT * FROM chat_to_link_connection WHERE chat_id = ? AND link_id = ?";
+
+        return client.sql(query).param(chatId).param(linkId).query(mapper).optional();
     }
 }

@@ -36,7 +36,7 @@ public class JdbcLinkService implements LinkService {
 
         if (optionalLink.isEmpty()) {
             OffsetDateTime timestamp = OffsetDateTime.now();
-            linkId = linkDao.add(url.toString(), timestamp, timestamp);
+            linkId = linkDao.add(url.toString(), timestamp, timestamp).get();
             link = new Link(linkId, url.toString(), timestamp, timestamp);
         } else {
             link = optionalLink.get();
@@ -100,20 +100,10 @@ public class JdbcLinkService implements LinkService {
     }
 
     private boolean isChatExists(long id) {
-        long chatCount = chatDao.findAll()
-            .stream()
-            .filter(c -> c.id() == id)
-            .count();
-
-        return chatCount == 1;
+        return chatDao.getById(id).isPresent();
     }
 
     private boolean isPairExists(long chatId, long linkId) {
-        long chatCount = connectionDao.findAll()
-            .stream()
-            .filter(c -> c.chatId() == chatId && c.linkId() == linkId)
-            .count();
-
-        return chatCount == 1;
+        return connectionDao.findByComplexId(chatId, linkId).isPresent();
     }
 }
