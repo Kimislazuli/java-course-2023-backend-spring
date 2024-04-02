@@ -43,10 +43,12 @@ public class JdbcLinkService implements LinkService {
             linkId = link.id();
         }
 
-        if (isPairExists(tgChatId, linkId)) {
+        Optional<ChatToLinkConnection> id = connectionDao.add(tgChatId, linkId);
+
+        if (id.isEmpty()) {
             throw new AlreadyExistException("This pair already exists");
         }
-        connectionDao.add(tgChatId, linkId);
+
         return link;
     }
 
@@ -101,9 +103,5 @@ public class JdbcLinkService implements LinkService {
 
     private boolean isChatExists(long id) {
         return chatDao.getById(id).isPresent();
-    }
-
-    private boolean isPairExists(long chatId, long linkId) {
-        return connectionDao.findByComplexId(chatId, linkId).isPresent();
     }
 }
