@@ -1,7 +1,6 @@
 package edu.java.scrapper.sceduler;
 
 import edu.java.models.dto.LinkUpdate;
-import edu.java.scrapper.client.BotClient;
 import edu.java.scrapper.client.GithubClient;
 import edu.java.scrapper.client.StackOverflowClient;
 import edu.java.scrapper.domain.model.link.Link;
@@ -10,11 +9,11 @@ import edu.java.scrapper.dto.stackoverflow.StackOverflowResponse;
 import edu.java.scrapper.exception.NotExistException;
 import edu.java.scrapper.service.processing_services.LinkService;
 import edu.java.scrapper.service.processing_services.UpdaterService;
+import edu.java.scrapper.service.sending_services.SenderService;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
-import edu.java.scrapper.service.sending_services.SenderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
