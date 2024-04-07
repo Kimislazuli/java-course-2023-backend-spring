@@ -1,8 +1,8 @@
-package edu.java.scrapper.service.jdbc_impl;
+package edu.java.scrapper.service.processing_services.jdbc_impl;
 
 import edu.java.scrapper.domain.dao.jdbc.JdbcLinkDao;
 import edu.java.scrapper.domain.model.link.Link;
-import edu.java.scrapper.service.UpdaterService;
+import edu.java.scrapper.service.processing_services.UpdaterService;
 import java.time.OffsetDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

@@ -39,8 +39,8 @@ services:
       ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_SERVERS: zoo:2888:3888
     volumes:
-      - zookeeper:/var/lib/zookeeper/data
-      - zookeeper:/var/lib/zookeeper/log
+      - zookeeperdata:/var/lib/zookeeper/data
+      - zookeeperlog:/var/lib/zookeeper/log
 
 
   kafka1:
@@ -60,7 +60,7 @@ services:
       KAFKA_AUTHORIZER_CLASS_NAME: kafka.security.authorizer.AclAuthorizer
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
     volumes:
-      - kafka:/var/lib/kafka1/data
+      - kafka1:/var/lib/kafka1/data
     depends_on:
       - zoo
 
@@ -81,7 +81,7 @@ services:
       KAFKA_AUTHORIZER_CLASS_NAME: kafka.security.authorizer.AclAuthorizer
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
     volumes:
-      - kafka:/var/lib/kafka2/data
+      - kafka2:/var/lib/kafka2/data
     depends_on:
       - zoo
 
@@ -103,14 +103,17 @@ services:
       KAFKA_AUTHORIZER_CLASS_NAME: kafka.security.authorizer.AclAuthorizer
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
     volumes:
-      - kafka:/var/lib/kafka3/data
+      - kafka3:/var/lib/kafka3/data
     depends_on:
       - zoo
 
 volumes:
   postgresql: { }
-  zookeeper: { }
-  kafka: { }
+  zookeeperdata: { }
+  zookeeperlog: { }
+  kafka1: { }
+  kafka2: { }
+  kafka3: { }
 
 networks:
   backend: { }

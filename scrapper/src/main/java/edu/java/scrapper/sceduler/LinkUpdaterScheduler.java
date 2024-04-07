@@ -1,5 +1,6 @@
 package edu.java.scrapper.sceduler;
 
+import edu.java.models.dto.LinkUpdate;
 import edu.java.scrapper.client.BotClient;
 import edu.java.scrapper.client.GithubClient;
 import edu.java.scrapper.client.StackOverflowClient;
@@ -7,12 +8,13 @@ import edu.java.scrapper.domain.model.link.Link;
 import edu.java.scrapper.dto.github.GithubResponse;
 import edu.java.scrapper.dto.stackoverflow.StackOverflowResponse;
 import edu.java.scrapper.exception.NotExistException;
-import edu.java.scrapper.service.LinkService;
-import edu.java.scrapper.service.UpdaterService;
+import edu.java.scrapper.service.processing_services.LinkService;
+import edu.java.scrapper.service.processing_services.UpdaterService;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import edu.java.scrapper.service.sending_services.SenderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,7 +25,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @SuppressWarnings("MagicNumber")
 public class LinkUpdaterScheduler {
-    private final BotClient botClient;
+    private final SenderService service;
     private final UpdaterService updaterService;
     private final LinkService linkService;
     private final GithubClient githubClient;
@@ -74,6 +76,6 @@ public class LinkUpdaterScheduler {
         throws NotExistException {
         updaterService.update(linkId, updatedAt);
         List<Long> linkedChats = linkService.linkedChatIds(linkId);
-        botClient.updates(linkId, url, "link updated", linkedChats);
+        service.send(new LinkUpdate(linkId, url, "link updated", linkedChats));
     }
 }
