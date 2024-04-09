@@ -7,7 +7,6 @@ import edu.java.scrapper.domain.model.connection.ChatToLinkConnection;
 import edu.java.scrapper.domain.model.link.Link;
 import edu.java.scrapper.exception.AlreadyExistException;
 import edu.java.scrapper.exception.NotExistException;
-import edu.java.scrapper.exception.RepeatedRegistrationException;
 import edu.java.scrapper.service.LinkService;
 import java.net.URI;
 import java.time.OffsetDateTime;
