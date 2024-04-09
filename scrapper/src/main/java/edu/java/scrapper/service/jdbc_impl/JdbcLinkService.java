@@ -25,9 +25,9 @@ public class JdbcLinkService implements LinkService {
     private final JdbcChatToLinkConnectionDao connectionDao;
 
     @Override
-    public Link add(long tgChatId, URI url) throws AlreadyExistException, RepeatedRegistrationException {
+    public Link add(long tgChatId, URI url) throws AlreadyExistException {
         if (!isChatExists(tgChatId)) {
-            chatDao.add(tgChatId);
+            chatDao.createIfNotExist(tgChatId);
         }
 
         Optional<Link> optionalLink = linkDao.getLinkByUrl(url.toString());
@@ -36,14 +36,14 @@ public class JdbcLinkService implements LinkService {
 
         if (optionalLink.isEmpty()) {
             OffsetDateTime timestamp = OffsetDateTime.now();
-            linkId = linkDao.add(url.toString(), timestamp, timestamp).get();
+            linkId = linkDao.createIfNotExist(url.toString(), timestamp, timestamp).get();
             link = new Link(linkId, url.toString(), timestamp, timestamp);
         } else {
             link = optionalLink.get();
             linkId = link.id();
         }
 
-        Optional<ChatToLinkConnection> id = connectionDao.add(tgChatId, linkId);
+        Optional<ChatToLinkConnection> id = connectionDao.createIfNotExist(tgChatId, linkId);
 
         if (id.isEmpty()) {
             throw new AlreadyExistException("This pair already exists");
@@ -65,10 +65,7 @@ public class JdbcLinkService implements LinkService {
             linkId = link.id();
         }
 
-        long amountOfConnections = connectionDao.findAll()
-            .stream()
-            .filter(p -> p.linkId() == linkId)
-            .count();
+        long amountOfConnections = connectionDao.findAllByLinkId(linkId).size();
 
         connectionDao.remove(tgChatId, linkId);
 

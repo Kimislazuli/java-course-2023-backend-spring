@@ -24,7 +24,7 @@ public class LinkDaoTest extends IntegrationTest {
     @Transactional
     @Rollback
     void addSuccessfullyTest() {
-        long id = repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        long id = repository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
 
         List<Link> actualResult = repository.findAll();
 
@@ -35,8 +35,8 @@ public class LinkDaoTest extends IntegrationTest {
     @Transactional
     @Rollback
     void addExistedChatTest() {
-        repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
-        Optional<Long> actualResult = repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
+        repository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
+        Optional<Long> actualResult = repository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
 
         assertThat(actualResult).isEmpty();
     }
@@ -45,7 +45,7 @@ public class LinkDaoTest extends IntegrationTest {
     @Transactional
     @Rollback
     void removeSuccessfullyTest() throws NotExistException {
-        long id = repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        long id = repository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
         repository.remove(id);
 
         List<Link> actualResult = repository.findAll();
@@ -66,8 +66,8 @@ public class LinkDaoTest extends IntegrationTest {
     @Transactional
     @Rollback
     void findAllTest() {
-        long firstId = repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
-        long secondId = repository.add("www.link.com", OffsetDateTime.MAX, OffsetDateTime.MAX).get();
+        long firstId = repository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        long secondId = repository.createIfNotExist("www.link.com", OffsetDateTime.MAX, OffsetDateTime.MAX).get();
 
         List<Link> actualResult = repository.findAll();
 
@@ -82,7 +82,7 @@ public class LinkDaoTest extends IntegrationTest {
     @Transactional
     @Rollback
     void getLinkByUrlTest() {
-        repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        repository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
 
         Optional<Link> actualResult = repository.getLinkByUrl("www.url.com");
 
@@ -94,7 +94,7 @@ public class LinkDaoTest extends IntegrationTest {
     @Transactional
     @Rollback
     void getLinkByIdTest() {
-        long id = repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        long id = repository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
 
         Optional<Link> actualResult = repository.getLinkById(id);
 

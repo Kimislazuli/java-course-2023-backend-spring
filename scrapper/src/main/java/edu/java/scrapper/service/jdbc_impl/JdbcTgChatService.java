@@ -32,7 +32,7 @@ public class JdbcTgChatService implements TgChatService {
             throw new RepeatedRegistrationException("This chat already exists");
         }
 
-        chatDao.add(tgChatId);
+        chatDao.createIfNotExist(tgChatId);
     }
 
     @Override
@@ -47,6 +47,7 @@ public class JdbcTgChatService implements TgChatService {
             .stream()
             .map(ChatToLinkConnection::linkId)
             .toList();
+
         for (Long linkId : links) {
             List<ChatToLinkConnection> connections = connectionDao.findAllByLinkId(linkId);
 

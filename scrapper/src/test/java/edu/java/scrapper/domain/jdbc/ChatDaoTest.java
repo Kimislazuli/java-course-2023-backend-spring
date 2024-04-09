@@ -23,7 +23,7 @@ public class ChatDaoTest extends IntegrationTest {
     @Transactional
     @Rollback
     void addSuccessfullyTest() {
-        repository.add(22L);
+        repository.createIfNotExist(22L);
 
         List<Chat> actualResult = repository.findAll();
 
@@ -34,8 +34,8 @@ public class ChatDaoTest extends IntegrationTest {
     @Transactional
     @Rollback
     void addExistedChatTest() {
-        repository.add(22L);
-        Optional<Long> actualResult = repository.add(22L);
+        repository.createIfNotExist(22L);
+        Optional<Long> actualResult = repository.createIfNotExist(22L);
 
         assertThat(actualResult).isEmpty();
     }
@@ -44,7 +44,7 @@ public class ChatDaoTest extends IntegrationTest {
     @Transactional
     @Rollback
     void removeSuccessfullyTest() throws NotExistException {
-        repository.add(22L);
+        repository.createIfNotExist(22L);
         repository.remove(22L);
 
         List<Chat> actualResult = repository.findAll();
@@ -65,7 +65,7 @@ public class ChatDaoTest extends IntegrationTest {
     @Transactional
     @Rollback
     void getByIdTest() {
-        repository.add(11L);
+        repository.createIfNotExist(11L);
 
         Optional<Chat> actualResult = repository.getById(11L);
 
@@ -77,7 +77,7 @@ public class ChatDaoTest extends IntegrationTest {
     @Transactional
     @Rollback
     void setStateTest() {
-        repository.add(11L);
+        repository.createIfNotExist(11L);
 
         repository.setState(11L, 2);
         Optional<Chat> actualResult = repository.getById(11L);

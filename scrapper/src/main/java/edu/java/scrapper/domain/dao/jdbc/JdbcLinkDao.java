@@ -20,7 +20,7 @@ public class JdbcLinkDao {
     private final JdbcClient client;
     private final LinkRowMapper mapper;
 
-    public Optional<Long> add(String url, OffsetDateTime lastUpdate, OffsetDateTime lastCheck) {
+    public Optional<Long> createIfNotExist(String url, OffsetDateTime lastUpdate, OffsetDateTime lastCheck) {
         String query = "INSERT INTO link (url, last_update, last_check) VALUES (?, ?, ?) ON CONFLICT DO NOTHING";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 

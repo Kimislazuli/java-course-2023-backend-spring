@@ -15,7 +15,7 @@ public class JdbcChatToLinkConnectionDao {
     private final JdbcClient client;
     private final ChatToLinkConnectionRowMapper mapper;
 
-    public Optional<ChatToLinkConnection> add(long chatId, long linkId) {
+    public Optional<ChatToLinkConnection> createIfNotExist(long chatId, long linkId) {
         String query = "INSERT INTO chat_to_link_connection (chat_id, link_id) VALUES (?, ?) ON CONFLICT DO NOTHING";
 
         int rowsAffected = client.sql(query)

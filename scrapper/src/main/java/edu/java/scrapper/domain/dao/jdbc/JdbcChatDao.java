@@ -1,6 +1,6 @@
 package edu.java.scrapper.domain.dao.jdbc;
 
-import edu.java.scrapper.domain.model.chat.Chat;
+import  edu.java.scrapper.domain.model.chat.Chat;
 import edu.java.scrapper.domain.model.chat.ChatRowMapper;
 import edu.java.scrapper.exception.NotExistException;
 import java.util.List;
@@ -17,7 +17,7 @@ public class JdbcChatDao {
     private final JdbcClient client;
     private final ChatRowMapper mapper;
 
-    public Optional<Long> add(long chatId) {
+    public Optional<Long> createIfNotExist(long chatId) {
         String query = "INSERT INTO chat (id) VALUES (?) ON CONFLICT DO NOTHING";
 
         int rowsAffected = client.sql(query).param(chatId).update();
