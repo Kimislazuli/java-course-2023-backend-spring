@@ -64,14 +64,15 @@ public class JdbcLinkService implements LinkService {
             linkId = link.id();
         }
 
-        long amountOfConnections = connectionDao.findAllByLinkId(linkId).size();
+        List<ChatToLinkConnection> connections = connectionDao.findAllByLinkId(linkId);
+        if (!connections.stream().anyMatch(p -> p.chatId() == tgChatId)) {
+            throw new NotExistException("This pair doesn't exist");
+        }
 
         connectionDao.remove(tgChatId, linkId);
 
-        if (amountOfConnections == 1) {
+        if (connections.size() == 1) {
             linkDao.remove(linkId);
-        } else if (amountOfConnections == 0) {
-            throw new NotExistException("This pair doesn't exist");
         }
 
         return link;

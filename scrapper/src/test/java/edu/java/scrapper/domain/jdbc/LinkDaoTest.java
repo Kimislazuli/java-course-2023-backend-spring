@@ -4,9 +4,13 @@ import edu.java.scrapper.IntegrationTest;
 import edu.java.scrapper.domain.dao.jdbc.JdbcLinkDao;
 import edu.java.scrapper.domain.model.link.Link;
 import edu.java.scrapper.exception.NotExistException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,6 +23,21 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class LinkDaoTest extends IntegrationTest {
     @Autowired
     private JdbcLinkDao repository;
+
+    @BeforeEach
+    void setUp() {
+        try (Connection connection = POSTGRES.createConnection("");
+             PreparedStatement sqlQueryChat = connection.prepareStatement("DELETE FROM public.chat");
+             PreparedStatement sqlQueryLink = connection.prepareStatement("DELETE FROM public.link");
+             PreparedStatement sqlQueryConnection = connection.prepareStatement("DELETE FROM public.chat_to_link_connection");
+        ) {
+            sqlQueryConnection.execute();
+            sqlQueryChat.execute();
+            sqlQueryLink.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Test
     @Transactional
