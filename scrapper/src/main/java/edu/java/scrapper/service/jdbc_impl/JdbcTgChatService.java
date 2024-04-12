@@ -8,12 +8,14 @@ import edu.java.scrapper.domain.model.connection.ChatToLinkConnection;
 import edu.java.scrapper.exception.NotExistException;
 import edu.java.scrapper.exception.RepeatedRegistrationException;
 import edu.java.scrapper.service.TgChatService;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class JdbcTgChatService implements TgChatService {
     private final JdbcLinkDao linkDao;

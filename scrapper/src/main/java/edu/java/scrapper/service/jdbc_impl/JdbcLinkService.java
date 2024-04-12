@@ -8,6 +8,7 @@ import edu.java.scrapper.domain.model.link.Link;
 import edu.java.scrapper.exception.AlreadyExistException;
 import edu.java.scrapper.exception.NotExistException;
 import edu.java.scrapper.service.LinkService;
+import jakarta.transaction.Transactional;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.Collection;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class JdbcLinkService implements LinkService {
     private final JdbcLinkDao linkDao;
@@ -80,14 +82,7 @@ public class JdbcLinkService implements LinkService {
 
     @Override
     public Collection<Link> listAll(long tgChatId) {
-        return connectionDao.findAll()
-            .stream()
-            .filter(e -> e.chatId() == tgChatId)
-            .map(ChatToLinkConnection::linkId)
-            .map(linkDao::getLinkById)
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .toList();
+        return linkDao.findAllLinksByChatId(tgChatId);
     }
 
     @Override

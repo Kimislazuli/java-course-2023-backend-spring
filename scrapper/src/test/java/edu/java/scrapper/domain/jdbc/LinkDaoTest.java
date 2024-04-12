@@ -1,6 +1,8 @@
 package edu.java.scrapper.domain.jdbc;
 
 import edu.java.scrapper.IntegrationTest;
+import edu.java.scrapper.domain.dao.jdbc.JdbcChatDao;
+import edu.java.scrapper.domain.dao.jdbc.JdbcChatToLinkConnectionDao;
 import edu.java.scrapper.domain.dao.jdbc.JdbcLinkDao;
 import edu.java.scrapper.domain.model.link.Link;
 import edu.java.scrapper.exception.NotExistException;
@@ -22,7 +24,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 public class LinkDaoTest extends IntegrationTest {
     @Autowired
-    private JdbcLinkDao repository;
+    private JdbcLinkDao linkDao;
+
+    @Autowired
+    private JdbcChatDao chatDao;
+
+    @Autowired
+    private JdbcChatToLinkConnectionDao connectionDao;
 
     @BeforeEach
     void setUp() {
@@ -43,9 +51,9 @@ public class LinkDaoTest extends IntegrationTest {
     @Transactional
     @Rollback
     void addSuccessfullyTest() {
-        long id = repository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        long id = linkDao.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
 
-        List<Link> actualResult = repository.findAll();
+        List<Link> actualResult = linkDao.findAll();
 
         assertThat(actualResult).containsExactly(new Link(id, "www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN));
     }
@@ -54,8 +62,8 @@ public class LinkDaoTest extends IntegrationTest {
     @Transactional
     @Rollback
     void addExistedChatTest() {
-        repository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
-        Optional<Long> actualResult = repository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
+        linkDao.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
+        Optional<Long> actualResult = linkDao.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
 
         assertThat(actualResult).isEmpty();
     }
@@ -64,10 +72,10 @@ public class LinkDaoTest extends IntegrationTest {
     @Transactional
     @Rollback
     void removeSuccessfullyTest() throws NotExistException {
-        long id = repository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
-        repository.remove(id);
+        long id = linkDao.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        linkDao.remove(id);
 
-        List<Link> actualResult = repository.findAll();
+        List<Link> actualResult = linkDao.findAll();
 
         assertThat(actualResult).isEmpty();
     }
@@ -77,7 +85,7 @@ public class LinkDaoTest extends IntegrationTest {
     @Rollback
     void removeNotExistedChatTest() {
         assertThrows(NotExistException.class, () -> {
-            repository.remove(22L);
+            linkDao.remove(22L);
         });
     }
 
@@ -85,10 +93,10 @@ public class LinkDaoTest extends IntegrationTest {
     @Transactional
     @Rollback
     void findAllTest() {
-        long firstId = repository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
-        long secondId = repository.createIfNotExist("www.link.com", OffsetDateTime.MAX, OffsetDateTime.MAX).get();
+        long firstId = linkDao.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        long secondId = linkDao.createIfNotExist("www.link.com", OffsetDateTime.MAX, OffsetDateTime.MAX).get();
 
-        List<Link> actualResult = repository.findAll();
+        List<Link> actualResult = linkDao.findAll();
 
         assertThat(actualResult).containsExactlyInAnyOrder(
             new Link(firstId, "www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN),
@@ -101,9 +109,9 @@ public class LinkDaoTest extends IntegrationTest {
     @Transactional
     @Rollback
     void getLinkByUrlTest() {
-        repository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        linkDao.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
 
-        Optional<Link> actualResult = repository.getLinkByUrl("www.url.com");
+        Optional<Link> actualResult = linkDao.getLinkByUrl("www.url.com");
 
         assertThat(actualResult).isPresent();
         assertThat(actualResult.get().url()).isEqualTo("www.url.com");
@@ -113,12 +121,28 @@ public class LinkDaoTest extends IntegrationTest {
     @Transactional
     @Rollback
     void getLinkByIdTest() {
-        long id = repository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        long id = linkDao.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
 
-        Optional<Link> actualResult = repository.getLinkById(id);
+        Optional<Link> actualResult = linkDao.getLinkById(id);
 
         assertThat(actualResult).isPresent();
         assertThat(actualResult.get().id()).isEqualTo(id);
         assertThat(actualResult.get().url()).isEqualTo("www.url.com");
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void findChatsByLinkIdTest() {
+        long id1 = linkDao.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        long id2 = linkDao.createIfNotExist("www.test.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+
+        chatDao.createIfNotExist(1L);
+
+        connectionDao.createIfNotExist(1L, id1);
+        connectionDao.createIfNotExist(1L, id2);
+        List<Link> actualResult = linkDao.findAllLinksByChatId(1L);
+
+        assertThat(actualResult.stream().map(Link::id)).containsExactlyInAnyOrder(id1, id2);
     }
 }

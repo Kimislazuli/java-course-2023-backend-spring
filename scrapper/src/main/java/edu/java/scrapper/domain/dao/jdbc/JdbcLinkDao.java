@@ -78,4 +78,13 @@ public class JdbcLinkDao {
 
         client.sql(query).param(timestamp).param(linkId).update();
     }
+
+    public List<Link> findAllLinksByChatId(long chatId) {
+        String query = """
+                SELECT link_id, url, last_update, last_check FROM chat_to_link_connection
+                INNER JOIN link l on l.id = chat_to_link_connection.link_id
+                WHERE chat_id = ?""";
+
+        return client.sql(query).param(chatId).query(mapper).list();
+    }
 }
