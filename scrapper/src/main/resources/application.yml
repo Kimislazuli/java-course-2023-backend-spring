@@ -48,6 +48,32 @@ spring:
   kafka:
     bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
 
+management:
+  server:
+    port: 8081
+  endpoint:
+    info:
+      enabled: true
+    prometheus:
+      enabled: true
+    health:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  endpoints:
+    web:
+      base-path: /
+      exposure:
+        include:
+          - info
+          - prometheus
+          - health
+      path-mapping:
+        prometheus: /metrics
+
+
+
 server:
   port: 8080
 

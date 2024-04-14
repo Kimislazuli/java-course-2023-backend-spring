@@ -107,6 +107,39 @@ services:
     depends_on:
       - zoo
 
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    ports:
+      - 9090:9090
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    restart: always
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prom_data:/prometheus
+    networks:
+      - backend
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss:10.4.1
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=grafana
+    volumes:
+      - ./grafana:/etc/grafana/provisioning/datasources
+    networks:
+      - backend
+    depends_on:
+      - prometheus
+
 volumes:
   postgresql: { }
   zookeeperdata: { }
@@ -114,6 +147,7 @@ volumes:
   kafka1: { }
   kafka2: { }
   kafka3: { }
+  prom_data: {}
 
 networks:
   backend: { }
