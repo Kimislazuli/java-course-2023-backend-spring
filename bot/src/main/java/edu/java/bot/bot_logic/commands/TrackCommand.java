@@ -29,7 +29,12 @@ public class TrackCommand implements Command {
     public SendMessage handle(Update update) {
         Long userId = update.message().chat().id();
         String link = update.message().text();
-        linkService.track(userId, link);
-        return new SendMessage(update.message().chat().id(), String.format("Ссылка %s успешно добавлена.", link));
+        try {
+            linkService.track(userId, link);
+            return new SendMessage(update.message().chat().id(), String.format("Ссылка %s успешно добавлена.", link));
+        } catch (Exception e) {
+            return new SendMessage(
+                update.message().chat().id(), String.format("Ссылка %s уже была ранее добавлена.", link));
+        }
     }
 }

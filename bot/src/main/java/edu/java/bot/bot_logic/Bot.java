@@ -5,6 +5,7 @@ import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.BotCommand;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.botcommandscope.BotCommandsScopeChat;
+import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SetMyCommands;
 import edu.java.bot.bot_logic.commands.Command;
 import edu.java.bot.configuration.ApplicationConfig;
@@ -37,8 +38,9 @@ public class Bot implements AutoCloseable, UpdatesListener {
                 if (update.message() != null) {
                     log.info("processing {}", update);
                     telegramBot.execute(messageHandler.handleRequest(update));
-                    telegramBot.execute(createSetMyCommand().scope(new BotCommandsScopeChat(update.message().chat()
-                        .id())));
+                    telegramBot.execute(createSetMyCommand()
+                        .scope(new BotCommandsScopeChat(update.message().chat().id()))
+                    );
                 }
             }
         );
@@ -67,5 +69,9 @@ public class Bot implements AutoCloseable, UpdatesListener {
     @Override
     public void close() {
         telegramBot.shutdown();
+    }
+
+    public void sendMessage(SendMessage message) {
+        telegramBot.execute(message);
     }
 }

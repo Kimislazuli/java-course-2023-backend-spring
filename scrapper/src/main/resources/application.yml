@@ -16,10 +16,10 @@ spring:
   liquibase:
     enabled: false
   datasource:
-    driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/scrapper
-    username: postgres
-    password: postgres
+    username: ${USERNAME}
+    password: ${PASSWORD}
+    driver-class-name: org.postgresql.Driver
 
 server:
   port: 8080
