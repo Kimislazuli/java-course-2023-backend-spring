@@ -9,7 +9,6 @@ import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SetMyCommands;
 import edu.java.bot.bot_logic.commands.Command;
 import edu.java.bot.configuration.ApplicationConfig;
-import io.micrometer.core.instrument.Counter;
 import jakarta.annotation.PostConstruct;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,6 @@ public class Bot implements AutoCloseable, UpdatesListener {
     private final ApplicationConfig config;
     private TelegramBot telegramBot;
     private final MessageHandler messageHandler;
-    private final Counter processedMessagesCounter;
     private final List<? extends Command> commands;
 
 
@@ -43,7 +41,6 @@ public class Bot implements AutoCloseable, UpdatesListener {
 
         );
 
-        processedMessagesCounter.increment();
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }
 
