@@ -4,8 +4,8 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import edu.java.bot.bot_logic.commands.Command;
 import edu.java.bot.bot_logic.commands.HelpCommand;
-import edu.java.bot.model.User;
-import edu.java.bot.repository.UserRepository;
+import edu.java.bot.client.ScrapperClient;
+import edu.java.bot.model.Chat;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -13,6 +13,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -36,67 +37,75 @@ public class MessageHandler {
     private static final String UNTRACK = "/untrack";
     private static final String LIST = "/list";
     private static final int OK = 200;
-
+    private final ScrapperClient scrapperClient;
     private final Map<String, Command> commands;
 
-    private final UserRepository userRepository;
-
     @Autowired
-    public MessageHandler(Set<? extends Command> commandsSet, UserRepository repository) {
+    public MessageHandler(ScrapperClient scrapperClient, Set<? extends Command> commandsSet) {
+        this.scrapperClient = scrapperClient;
         commands = commandsSet.stream().collect(Collectors.toMap(Command::command, Function.identity()));
         HelpCommand help = (HelpCommand) commands.get(HELP);
         help.setCommands(commandsSet);
-        userRepository = repository;
     }
 
     public SendMessage handleRequest(Update update) {
         String messageText = update.message().text();
         Long userId = update.message().chat().id();
-        User user = userRepository.getUserById(userId);
-
+        Optional<Chat> chat = scrapperClient.getChat(userId);
         if (commands.containsKey(messageText)) {
-            return handleCommandInput(update, messageText, userId, user);
-        } else if (user != null) {
-            return handleOtherInput(update, messageText, userId, user);
+            return handleCommandInput(update, messageText, userId, chat);
+        } else if (chat.isPresent()) {
+            return handleOtherInput(update, messageText, userId, chat.get());
         }
         return new SendMessage(userId, WRONG_COMMAND_MESSAGE);
     }
 
-    private SendMessage handleCommandInput(Update update, String messageText, Long userId, User user) {
+    private SendMessage handleCommandInput(Update update, String messageText, Long userId, Optional<Chat> chat) {
         Command command = commands.get(messageText);
-        if (user == null || command.command().equals(LIST)) {
-            if (List.of(HELP, START).contains(messageText) || (command.command().equals(LIST) && user != null)) {
+        if (chat.isEmpty() || command.command().equals(LIST)) {
+            if (List.of(HELP, START).contains(messageText) || (command.command().equals(LIST) && chat.isPresent())) {
                 return command.handle(update);
             }
             return new SendMessage(userId, NOT_AVAILABLE_COMMAND_MESSAGE);
         }
+        Chat extractedChat = chat.get();
         switch (messageText) {
             case START -> {
                 return new SendMessage(userId, "Вы уже авторизованы");
             }
-            case TRACK -> user.setState(State.WAIT_FOR_LINK_TO_ADD);
-            case UNTRACK -> user.setState(State.WAIT_FOR_LINK_TO_REMOVE);
+            case TRACK -> {
+                extractedChat.setState(State.WAIT_FOR_LINK_TO_ADD);
+                scrapperClient.updateChatState(extractedChat.getTelegramId(), extractedChat.getState().ordinal());
+            }
+
+            case UNTRACK -> {
+                extractedChat.setState(State.WAIT_FOR_LINK_TO_REMOVE);
+                scrapperClient.updateChatState(extractedChat.getTelegramId(), extractedChat.getState().ordinal());
+            }
         }
         return new SendMessage(userId, "Отправьте ссылку");
 
     }
 
-    private SendMessage handleOtherInput(Update update, String messageText, Long userId, User user) {
-        switch (user.getState()) {
+    private SendMessage handleOtherInput(Update update, String messageText, Long userId, Chat chat) {
+        log.info(String.valueOf(chat.getState()));
+        switch (chat.getState()) {
             case DEFAULT -> {
                 return new SendMessage(userId, WRONG_COMMAND_MESSAGE);
             }
             case WAIT_FOR_LINK_TO_ADD -> {
                 if (isLinkCorrect(messageText)) {
                     Command command = commands.get(TRACK);
-                    user.setState(State.DEFAULT);
+                    chat.setState(State.DEFAULT);
+                    scrapperClient.updateChatState(chat.getTelegramId(), chat.getState().ordinal());
                     return command.handle(update);
                 }
             }
             case WAIT_FOR_LINK_TO_REMOVE -> {
                 if (isLinkCorrect(messageText)) {
                     Command command = commands.get(UNTRACK);
-                    user.setState(State.DEFAULT);
+                    chat.setState(State.DEFAULT);
+                    scrapperClient.updateChatState(chat.getTelegramId(), chat.getState().ordinal());
                     return command.handle(update);
                 }
             }
