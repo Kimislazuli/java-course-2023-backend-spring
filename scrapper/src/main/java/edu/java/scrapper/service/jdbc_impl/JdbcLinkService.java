@@ -7,17 +7,16 @@ import edu.java.scrapper.domain.model.connection.ChatToLinkConnection;
 import edu.java.scrapper.domain.model.link.Link;
 import edu.java.scrapper.exception.AlreadyExistException;
 import edu.java.scrapper.exception.NotExistException;
-import edu.java.scrapper.exception.RepeatedRegistrationException;
 import edu.java.scrapper.service.LinkService;
+import jakarta.transaction.Transactional;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+@Transactional
 @RequiredArgsConstructor
 public class JdbcLinkService implements LinkService {
     private final JdbcLinkDao linkDao;
@@ -25,9 +24,9 @@ public class JdbcLinkService implements LinkService {
     private final JdbcChatToLinkConnectionDao connectionDao;
 
     @Override
-    public Link add(long tgChatId, URI url) throws AlreadyExistException, RepeatedRegistrationException {
+    public Link add(long tgChatId, URI url) throws AlreadyExistException {
         if (!isChatExists(tgChatId)) {
-            chatDao.add(tgChatId);
+            chatDao.createIfNotExist(tgChatId);
         }
 
         Optional<Link> optionalLink = linkDao.getLinkByUrl(url.toString());
@@ -36,17 +35,19 @@ public class JdbcLinkService implements LinkService {
 
         if (optionalLink.isEmpty()) {
             OffsetDateTime timestamp = OffsetDateTime.now();
-            linkId = linkDao.add(url.toString(), timestamp, timestamp);
+            linkId = linkDao.createIfNotExist(url.toString(), timestamp, timestamp).get();
             link = new Link(linkId, url.toString(), timestamp, timestamp);
         } else {
             link = optionalLink.get();
             linkId = link.getId();
         }
 
-        if (isPairExists(tgChatId, linkId)) {
+        Optional<ChatToLinkConnection> id = connectionDao.createIfNotExist(tgChatId, linkId);
+
+        if (id.isEmpty()) {
             throw new AlreadyExistException("This pair already exists");
         }
-        connectionDao.add(tgChatId, linkId);
+
         return link;
     }
 
@@ -63,17 +64,15 @@ public class JdbcLinkService implements LinkService {
             linkId = link.getId();
         }
 
-        long amountOfConnections = connectionDao.findAll()
-            .stream()
-            .filter(p -> p.getLinkId() == linkId)
-            .count();
+        List<ChatToLinkConnection> connections = connectionDao.findAllByLinkId(linkId);
+        if (connections.stream().noneMatch(p -> p.getChatId() == tgChatId)) {
+            throw new NotExistException("This pair doesn't exist");
+        }
 
         connectionDao.remove(tgChatId, linkId);
 
-        if (amountOfConnections == 1) {
+        if (connections.size() == 1) {
             linkDao.remove(linkId);
-        } else if (amountOfConnections == 0) {
-            throw new NotExistException("This pair doesn't exist");
         }
 
         return link;
@@ -81,14 +80,7 @@ public class JdbcLinkService implements LinkService {
 
     @Override
     public Collection<Link> listAll(long tgChatId) {
-        return connectionDao.findAll()
-            .stream()
-            .filter(e -> e.getChatId() == tgChatId)
-            .map(ChatToLinkConnection::getLinkId)
-            .map(linkDao::getLinkById)
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .toList();
+        return linkDao.findAllLinksByChatId(tgChatId);
     }
 
     @Override
@@ -100,20 +92,6 @@ public class JdbcLinkService implements LinkService {
     }
 
     private boolean isChatExists(long id) {
-        long chatCount = chatDao.findAll()
-            .stream()
-            .filter(c -> c.getId() == id)
-            .count();
-
-        return chatCount == 1;
-    }
-
-    private boolean isPairExists(long chatId, long linkId) {
-        long chatCount = connectionDao.findAll()
-            .stream()
-            .filter(c -> c.getChatId() == chatId && c.getLinkId() == linkId)
-            .count();
-
-        return chatCount == 1;
+        return chatDao.getById(id).isPresent();
     }
 }

@@ -31,9 +31,9 @@ spring:
   liquibase:
     enabled: false
   datasource:
-    url: "jdbc:postgresql://localhost:5432/scrapper"
-    username: "${USERNAME}"
-    password: "${PASSWORD}"
+    url: jdbc:postgresql://localhost:5432/scrapper
+    username: ${USERNAME}
+    password: ${PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     show-sql: true
