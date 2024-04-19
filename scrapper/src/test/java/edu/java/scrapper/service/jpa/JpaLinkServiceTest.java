@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 
 @SpringBootTest(properties = {"app.database-access-type=jpa"})
-public class LinkServiceTest extends IntegrationTest {
+public class JpaLinkServiceTest extends IntegrationTest {
     @Autowired
     LinkService linkService;
     @Autowired

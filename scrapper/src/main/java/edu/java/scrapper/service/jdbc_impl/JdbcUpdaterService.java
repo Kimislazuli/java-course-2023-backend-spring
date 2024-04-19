@@ -3,10 +3,12 @@ package edu.java.scrapper.service.jdbc_impl;
 import edu.java.scrapper.domain.dao.jdbc.JdbcLinkDao;
 import edu.java.scrapper.domain.model.link.Link;
 import edu.java.scrapper.service.UpdaterService;
+import jakarta.transaction.Transactional;
 import java.time.OffsetDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
+@Transactional
 @RequiredArgsConstructor
 public class JdbcUpdaterService implements UpdaterService {
     private final JdbcLinkDao linkDao;

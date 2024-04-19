@@ -1,16 +1,17 @@
 package edu.java.scrapper.domain.jdbc;
 
 import edu.java.scrapper.IntegrationTest;
+import edu.java.scrapper.domain.dao.jdbc.JdbcChatDao;
 import edu.java.scrapper.domain.dao.jdbc.JdbcChatToLinkConnectionDao;
 import edu.java.scrapper.domain.dao.jdbc.JdbcLinkDao;
 import edu.java.scrapper.domain.model.link.Link;
-import edu.java.scrapper.exception.AlreadyExistException;
 import edu.java.scrapper.exception.NotExistException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +24,21 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 public class LinkDaoTest extends IntegrationTest {
     @Autowired
-    private JdbcLinkDao repository;
+    private JdbcLinkDao linkDao;
+
+    @Autowired
+    private JdbcChatDao chatDao;
+
+    @Autowired
+    private JdbcChatToLinkConnectionDao connectionDao;
 
     @BeforeEach
     void setUp() {
         try (Connection connection = POSTGRES.createConnection("");
              PreparedStatement deleteChat = connection.prepareStatement("DELETE FROM public.chat");
              PreparedStatement deleteLink = connection.prepareStatement("DELETE FROM public.link");
-             PreparedStatement deleteConnection = connection.prepareStatement("DELETE FROM public.chat_to_link_connection")) {
+             PreparedStatement deleteConnection = connection.prepareStatement(
+                 "DELETE FROM public.chat_to_link_connection")) {
             deleteConnection.execute();
             deleteChat.execute();
             deleteLink.execute();
@@ -42,10 +50,10 @@ public class LinkDaoTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void addSuccessfullyTest() throws AlreadyExistException {
-        long id = repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
+    void addSuccessfullyTest() {
+        long id = linkDao.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
 
-        List<Link> actualResult = repository.findAll();
+        List<Link> actualResult = linkDao.findAll();
 
         assertThat(actualResult).containsExactly(new Link(id, "www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN));
     }
@@ -54,20 +62,20 @@ public class LinkDaoTest extends IntegrationTest {
     @Transactional
     @Rollback
     void addExistedChatTest() {
-        assertThrows(AlreadyExistException.class, () -> {
-            repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
-            repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
-        });
+        linkDao.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
+        Optional<Long> actualResult = linkDao.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
+
+        assertThat(actualResult).isEmpty();
     }
 
     @Test
     @Transactional
     @Rollback
-    void removeSuccessfullyTest() throws AlreadyExistException, NotExistException {
-        long id = repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
-        repository.remove(id);
+    void removeSuccessfullyTest() throws NotExistException {
+        long id = linkDao.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        linkDao.remove(id);
 
-        List<Link> actualResult = repository.findAll();
+        List<Link> actualResult = linkDao.findAll();
 
         assertThat(actualResult).isEmpty();
     }
@@ -77,22 +85,63 @@ public class LinkDaoTest extends IntegrationTest {
     @Rollback
     void removeNotExistedChatTest() {
         assertThrows(NotExistException.class, () -> {
-            repository.remove(22L);
+            linkDao.remove(22L);
         });
     }
 
     @Test
     @Transactional
     @Rollback
-    void findAllTest() throws AlreadyExistException {
-        long firstId = repository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
-        long secondId = repository.add("www.link.com", OffsetDateTime.MAX, OffsetDateTime.MAX);
+    void findAllTest() {
+        long firstId = linkDao.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        long secondId = linkDao.createIfNotExist("www.link.com", OffsetDateTime.MAX, OffsetDateTime.MAX).get();
 
-        List<Link> actualResult = repository.findAll();
+        List<Link> actualResult = linkDao.findAll();
 
         assertThat(actualResult).containsExactlyInAnyOrder(
             new Link(firstId, "www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN),
             new Link(secondId, "www.link.com", OffsetDateTime.MAX, OffsetDateTime.MAX)
         );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void getLinkByUrlTest() {
+        linkDao.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+
+        Optional<Link> actualResult = linkDao.getLinkByUrl("www.url.com");
+
+        assertThat(actualResult).isPresent();
+        assertThat(actualResult.get().getUrl()).isEqualTo("www.url.com");
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void getLinkByIdTest() {
+        long id = linkDao.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+
+        Optional<Link> actualResult = linkDao.getLinkById(id);
+
+        assertThat(actualResult).isPresent();
+        assertThat(actualResult.get().getId()).isEqualTo(id);
+        assertThat(actualResult.get().getUrl()).isEqualTo("www.url.com");
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void findChatsByLinkIdTest() {
+        long id1 = linkDao.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        long id2 = linkDao.createIfNotExist("www.test.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+
+        chatDao.createIfNotExist(1L);
+
+        connectionDao.createIfNotExist(1L, id1);
+        connectionDao.createIfNotExist(1L, id2);
+        List<Link> actualResult = linkDao.findAllLinksByChatId(1L);
+
+        assertThat(actualResult.stream().map(Link::getId)).containsExactlyInAnyOrder(id1, id2);
     }
 }

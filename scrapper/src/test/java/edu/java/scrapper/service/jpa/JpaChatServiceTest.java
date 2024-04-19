@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 
 @SpringBootTest(properties = {"app.database-access-type=jpa"})
-public class ChatServiceTest extends IntegrationTest {
+public class JpaChatServiceTest extends IntegrationTest {
     @Autowired
     TgChatService tgChatService;
     @Autowired
