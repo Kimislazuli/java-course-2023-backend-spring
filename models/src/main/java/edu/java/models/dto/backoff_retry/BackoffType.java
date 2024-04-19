@@ -1,4 +1,4 @@
-package edu.java.bot.configuration.backoff_retry;
+package edu.java.models.dto.backoff_retry;
 
 public enum BackoffType {
     CONST, LINEAR, EXPONENTIAL

@@ -1,5 +1,6 @@
 package edu.java.scrapper.configuration.backoff_retry;
 
+import edu.java.models.dto.backoff_retry.LinearRetry;
 import edu.java.scrapper.configuration.ApplicationConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

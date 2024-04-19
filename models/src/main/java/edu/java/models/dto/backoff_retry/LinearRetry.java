@@ -1,6 +1,5 @@
-package edu.java.bot.configuration.backoff_retry;
+package edu.java.models.dto.backoff_retry;
 
-import edu.java.bot.exception.RetryException;
 import java.time.Duration;
 import java.util.List;
 import java.util.function.Predicate;

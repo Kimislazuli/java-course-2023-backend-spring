@@ -90,7 +90,7 @@ public class ChatDaoTest extends IntegrationTest {
         Optional<Chat> actualResult = repository.getById(11L);
 
         assertThat(actualResult).isPresent();
-        assertThat(actualResult.get().id()).isEqualTo(11L);
+        assertThat(actualResult.get().getId()).isEqualTo(11L);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class ChatDaoTest extends IntegrationTest {
         Optional<Chat> actualResult = repository.getById(11L);
 
         assertThat(actualResult).isPresent();
-        assertThat(actualResult.get().state()).isEqualTo(2);
+        assertThat(actualResult.get().getState()).isEqualTo(2);
     }
 
     @Test

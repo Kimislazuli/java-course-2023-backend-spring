@@ -1,7 +1,7 @@
 package edu.java.scrapper.configuration.backoff_retry;
 
+import edu.java.models.dto.backoff_retry.RetryException;
 import edu.java.scrapper.configuration.ApplicationConfig;
-import edu.java.scrapper.exception.RetryException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +12,7 @@ import reactor.util.retry.Retry;
 @Slf4j
 @Configuration
 @ConditionalOnProperty(prefix = "app", name = "retry-config.back-off-type", havingValue = "exponential")
-public class ExponentialBackoffRetry {
+public class ExponentialBackoffRetryConfiguration {
     @Bean
     public Retry backoffRetry(ApplicationConfig config) {
         return Retry.backoff(config.retryConfig().attempts(), config.retryConfig().minDelay())

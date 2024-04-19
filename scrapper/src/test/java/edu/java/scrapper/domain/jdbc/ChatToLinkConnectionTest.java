@@ -40,7 +40,7 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
              PreparedStatement deleteChat = connection.prepareStatement("DELETE FROM public.chat");
              PreparedStatement deleteLink = connection.prepareStatement("DELETE FROM public.link");
              PreparedStatement deleteConnection = connection.prepareStatement(
-                 "DELETE FROM public.chat_to_link_connection")) {
+                     "DELETE FROM public.chat_to_link_connection")) {
             deleteConnection.execute();
             deleteChat.execute();
             deleteLink.execute();
@@ -111,8 +111,8 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
         List<ChatToLinkConnection> actualResult = connectionRepository.findAll();
 
         assertThat(actualResult).containsExactlyInAnyOrder(
-            new ChatToLinkConnection(1L, linkId),
-            new ChatToLinkConnection(2L, linkId)
+                new ChatToLinkConnection(1L, linkId),
+                new ChatToLinkConnection(2L, linkId)
         );
     }
 
@@ -123,7 +123,7 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
         chatRepository.createIfNotExist(1L);
         chatRepository.createIfNotExist(2L);
         long linkId =
-            linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+                linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
 
         connectionRepository.createIfNotExist(1L, linkId);
         connectionRepository.createIfNotExist(2L, linkId);
@@ -131,8 +131,8 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
         List<ChatToLinkConnection> actualResult = connectionRepository.findAllByLinkId(linkId);
 
         assertThat(actualResult).containsExactlyInAnyOrder(
-            new ChatToLinkConnection(1L, linkId),
-            new ChatToLinkConnection(2L, linkId)
+                new ChatToLinkConnection(1L, linkId),
+                new ChatToLinkConnection(2L, linkId)
         );
     }
 
@@ -142,9 +142,9 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
     void findAllByLinkChatTest() {
         chatRepository.createIfNotExist(1L);
         long firstLink =
-            linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+                linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
         long secondLink =
-            linkRepository.createIfNotExist("www.google.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+                linkRepository.createIfNotExist("www.google.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
 
         connectionRepository.createIfNotExist(1L, firstLink);
         connectionRepository.createIfNotExist(1L, secondLink);
@@ -152,8 +152,8 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
         List<ChatToLinkConnection> actualResult = connectionRepository.findAllByChatId(1L);
 
         assertThat(actualResult).containsExactlyInAnyOrder(
-            new ChatToLinkConnection(1L, firstLink),
-            new ChatToLinkConnection(1L, secondLink)
+                new ChatToLinkConnection(1L, firstLink),
+                new ChatToLinkConnection(1L, secondLink)
         );
     }
 
@@ -163,7 +163,7 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
     void findByComplexIdTest() throws AlreadyExistException, RepeatedRegistrationException {
         chatRepository.createIfNotExist(1L);
         long linkId =
-            linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+                linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
 
         connectionRepository.createIfNotExist(1L, linkId);
 
