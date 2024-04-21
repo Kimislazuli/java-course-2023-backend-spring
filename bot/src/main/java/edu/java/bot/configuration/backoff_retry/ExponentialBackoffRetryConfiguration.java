@@ -12,7 +12,7 @@ import reactor.util.retry.Retry;
 @Slf4j
 @Configuration
 @ConditionalOnProperty(prefix = "app", name = "retry-config.back-off-type", havingValue = "exponential")
-public class ExponentialBackoffRetry {
+public class ExponentialBackoffRetryConfiguration {
     @Bean
     public Retry backoffRetry(ApplicationConfig config) {
         return Retry.backoff(config.retryConfig().attempts(), config.retryConfig().minDelay())

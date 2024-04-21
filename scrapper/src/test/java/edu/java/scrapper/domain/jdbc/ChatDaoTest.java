@@ -4,16 +4,16 @@ import edu.java.scrapper.IntegrationTest;
 import edu.java.scrapper.domain.dao.jdbc.JdbcChatDao;
 import edu.java.scrapper.domain.model.chat.Chat;
 import edu.java.scrapper.exception.NotExistException;
-import edu.java.scrapper.exception.RepeatedRegistrationException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
-import org.junit.jupiter.api.BeforeAll;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,12 +27,13 @@ public class ChatDaoTest extends IntegrationTest {
     @BeforeEach
     void setUp() {
         try (Connection connection = POSTGRES.createConnection("");
-             PreparedStatement deleteChat = connection.prepareStatement("DELETE FROM public.chat");
-             PreparedStatement deleteLink = connection.prepareStatement("DELETE FROM public.link");
-             PreparedStatement deleteConnection = connection.prepareStatement("DELETE FROM public.chat_to_link_connection")) {
-            deleteConnection.execute();
-            deleteChat.execute();
-            deleteLink.execute();
+             PreparedStatement sqlQueryChat = connection.prepareStatement("DELETE FROM public.chat");
+             PreparedStatement sqlQueryLink = connection.prepareStatement("DELETE FROM public.link");
+             PreparedStatement sqlQueryConnection = connection.prepareStatement("DELETE FROM public.chat_to_link_connection");
+        ) {
+            sqlQueryConnection.execute();
+            sqlQueryChat.execute();
+            sqlQueryLink.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -41,8 +42,8 @@ public class ChatDaoTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void addSuccessfullyTest() throws RepeatedRegistrationException {
-        repository.add(22L);
+    void addSuccessfullyTest() {
+        repository.createIfNotExist(22L);
 
         List<Chat> actualResult = repository.findAll();
 
@@ -53,17 +54,17 @@ public class ChatDaoTest extends IntegrationTest {
     @Transactional
     @Rollback
     void addExistedChatTest() {
-        assertThrows(RepeatedRegistrationException.class, () -> {
-            repository.add(22L);
-            repository.add(22L);
-        });
+        repository.createIfNotExist(22L);
+        Optional<Long> actualResult = repository.createIfNotExist(22L);
+
+        assertThat(actualResult).isEmpty();
     }
 
     @Test
     @Transactional
     @Rollback
-    void removeSuccessfullyTest() throws RepeatedRegistrationException, NotExistException {
-        repository.add(22L);
+    void removeSuccessfullyTest() throws NotExistException {
+        repository.createIfNotExist(22L);
         repository.remove(22L);
 
         List<Chat> actualResult = repository.findAll();
@@ -83,12 +84,37 @@ public class ChatDaoTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void findAllTest() throws RepeatedRegistrationException {
-        repository.add(11L);
-        repository.add(48L);
+    void getByIdTest() {
+        repository.createIfNotExist(11L);
 
-        List<Chat> actualResult = repository.findAll();
+        Optional<Chat> actualResult = repository.getById(11L);
 
-        assertThat(actualResult).containsExactlyInAnyOrder(new Chat(11L, 0), new Chat(48L, 0));
+        assertThat(actualResult).isPresent();
+        assertThat(actualResult.get().getId()).isEqualTo(11L);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void setStateTest() {
+        repository.createIfNotExist(11L);
+
+        repository.setState(11L, 2);
+        Optional<Chat> actualResult = repository.getById(11L);
+
+        assertThat(actualResult).isPresent();
+        assertThat(actualResult.get().getState()).isEqualTo(2);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void setIllegalStateTest() {
+        repository.createIfNotExist(11L);
+
+        assertThrows(
+            InvalidDataAccessApiUsageException.class,
+            () -> repository.setState(11L, 3)
+        );
     }
 }

@@ -2,7 +2,6 @@ package edu.java.scrapper.domain.dao.jdbc;
 
 import edu.java.scrapper.domain.model.link.Link;
 import edu.java.scrapper.domain.model.link.LinkRowMapper;
-import edu.java.scrapper.exception.AlreadyExistException;
 import edu.java.scrapper.exception.NotExistException;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -21,21 +20,17 @@ public class JdbcLinkDao {
     private final JdbcClient client;
     private final LinkRowMapper mapper;
 
-    public long add(String url, OffsetDateTime lastUpdate, OffsetDateTime lastCheck) throws AlreadyExistException {
-        String query = "INSERT INTO link (url, last_update, last_check) VALUES (?, ?, ?)";
+    public Optional<Long> createIfNotExist(String url, OffsetDateTime lastUpdate, OffsetDateTime lastCheck) {
+        String query = "INSERT INTO link (url, last_update, last_check) VALUES (?, ?, ?) ON CONFLICT DO NOTHING";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        try {
-            client.sql(query)
-                .param(url)
-                .param(lastUpdate)
-                .param(lastCheck)
-                .update(keyHolder);
+        client.sql(query)
+            .param(url)
+            .param(lastUpdate)
+            .param(lastCheck)
+            .update(keyHolder);
 
-            return keyHolder.getKeys() != null ? (long) keyHolder.getKeys().get("id") : -1;
-        } catch (Exception e) {
-            throw new AlreadyExistException("This link already exists");
-        }
+        return keyHolder.getKeys() != null ? Optional.of((long) keyHolder.getKeys().get("id")) : Optional.empty();
     }
 
     public void remove(long linkId) throws NotExistException {
@@ -82,5 +77,14 @@ public class JdbcLinkDao {
         String query = "UPDATE link SET last_update = ? WHERE id = ?";
 
         client.sql(query).param(timestamp).param(linkId).update();
+    }
+
+    public List<Link> findAllLinksByChatId(long chatId) {
+        String query = """
+                SELECT link_id, url, last_update, last_check FROM chat_to_link_connection
+                INNER JOIN link l on l.id = chat_to_link_connection.link_id
+                WHERE chat_id = ?""";
+
+        return client.sql(query).param(chatId).query(mapper).list();
     }
 }

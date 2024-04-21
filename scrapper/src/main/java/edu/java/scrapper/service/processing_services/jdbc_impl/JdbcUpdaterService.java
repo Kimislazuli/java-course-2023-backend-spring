@@ -5,8 +5,10 @@ import edu.java.scrapper.domain.model.link.Link;
 import edu.java.scrapper.service.processing_services.UpdaterService;
 import java.time.OffsetDateTime;
 import java.util.List;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
+@Transactional
 @RequiredArgsConstructor
 public class JdbcUpdaterService implements UpdaterService {
     private final JdbcLinkDao linkDao;

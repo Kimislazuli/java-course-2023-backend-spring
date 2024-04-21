@@ -7,11 +7,13 @@ import edu.java.scrapper.domain.model.chat.Chat;
 import edu.java.scrapper.domain.model.connection.ChatToLinkConnection;
 import edu.java.scrapper.exception.NotExistException;
 import edu.java.scrapper.exception.RepeatedRegistrationException;
+import jakarta.transaction.Transactional;
 import edu.java.scrapper.service.processing_services.TgChatService;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 
+@Transactional
 @RequiredArgsConstructor
 public class JdbcTgChatService implements TgChatService {
     private final JdbcLinkDao linkDao;
@@ -30,7 +32,7 @@ public class JdbcTgChatService implements TgChatService {
             throw new RepeatedRegistrationException("This chat already exists");
         }
 
-        chatDao.add(tgChatId);
+        chatDao.createIfNotExist(tgChatId);
     }
 
     @Override
@@ -45,6 +47,7 @@ public class JdbcTgChatService implements TgChatService {
             .stream()
             .map(ChatToLinkConnection::getLinkId)
             .toList();
+
         for (Long linkId : links) {
             List<ChatToLinkConnection> connections = connectionDao.findAllByLinkId(linkId);
 

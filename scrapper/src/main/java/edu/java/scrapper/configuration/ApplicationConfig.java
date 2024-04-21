@@ -1,6 +1,6 @@
 package edu.java.scrapper.configuration;
 
-import edu.java.scrapper.configuration.backoff_retry.BackoffType;
+import edu.java.models.dto.backoff_retry.BackoffType;
 import edu.java.scrapper.configuration.database.AccessType;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;

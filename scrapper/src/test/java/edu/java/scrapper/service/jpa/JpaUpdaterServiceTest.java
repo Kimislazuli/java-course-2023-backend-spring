@@ -16,7 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(properties = {"app.database-access-type=jpa"})
-public class UpdaterServiceTest extends IntegrationTest {
+public class JpaUpdaterServiceTest extends IntegrationTest {
     @Autowired
     UpdaterService updaterService;
     @Autowired
