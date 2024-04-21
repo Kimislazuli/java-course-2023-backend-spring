@@ -10,10 +10,10 @@ import edu.java.scrapper.exception.NotExistException;
 import edu.java.scrapper.exception.RepeatedRegistrationException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,8 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
         try (Connection connection = POSTGRES.createConnection("");
              PreparedStatement deleteChat = connection.prepareStatement("DELETE FROM public.chat");
              PreparedStatement deleteLink = connection.prepareStatement("DELETE FROM public.link");
-             PreparedStatement deleteConnection = connection.prepareStatement("DELETE FROM public.chat_to_link_connection")) {
+             PreparedStatement deleteConnection = connection.prepareStatement(
+                     "DELETE FROM public.chat_to_link_connection")) {
             deleteConnection.execute();
             deleteChat.execute();
             deleteLink.execute();
@@ -51,10 +52,10 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void addSuccessfullyTest() throws AlreadyExistException, RepeatedRegistrationException {
-        chatRepository.add(1L);
-        long linkId = linkRepository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
-        connectionRepository.add(1L, linkId);
+    void addSuccessfullyTest() {
+        chatRepository.createIfNotExist(1L);
+        long linkId = linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        connectionRepository.createIfNotExist(1L, linkId);
 
         List<ChatToLinkConnection> actualResult = connectionRepository.findAll();
 
@@ -65,22 +66,22 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
     @Transactional
     @Rollback
     void addExistedChatTest() {
-        assertThrows(AlreadyExistException.class, () -> {
-            chatRepository.add(1L);
-            long linkId = linkRepository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
-            connectionRepository.add(1L, linkId);
-            connectionRepository.add(1L, linkId);
-        });
+        chatRepository.createIfNotExist(1L);
+        long linkId = linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        connectionRepository.createIfNotExist(1L, linkId);
+        Optional<ChatToLinkConnection> actualResult = connectionRepository.createIfNotExist(1L, linkId);
+
+        assertThat(actualResult).isEmpty();
     }
 
     @Test
     @Transactional
     @Rollback
-    void removeSuccessfullyTest() throws AlreadyExistException, NotExistException, RepeatedRegistrationException {
-        chatRepository.add(5L);
-        long linkId = linkRepository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
-        connectionRepository.add(5L, linkId);
-        connectionRepository.remove(5L, linkId);
+    void removeSuccessfullyTest() throws NotExistException {
+        chatRepository.createIfNotExist(1L);
+        long linkId = linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        connectionRepository.createIfNotExist(1L, linkId);
+        connectionRepository.remove(1L, linkId);
 
         List<ChatToLinkConnection> actualResult = connectionRepository.findAll();
 
@@ -99,16 +100,75 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
     @Test
     @Transactional
     @Rollback
-    void findAllTest() throws AlreadyExistException, RepeatedRegistrationException {
-        chatRepository.add(3L);
-        chatRepository.add(4L);
-        long linkId = linkRepository.add("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN);
+    void findAllTest() {
+        chatRepository.createIfNotExist(1L);
+        chatRepository.createIfNotExist(2L);
+        long linkId = linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
 
-        connectionRepository.add(3L, linkId);
-        connectionRepository.add(4L, linkId);
+        connectionRepository.createIfNotExist(1L, linkId);
+        connectionRepository.createIfNotExist(2L, linkId);
 
         List<ChatToLinkConnection> actualResult = connectionRepository.findAll();
 
-        assertThat(actualResult.stream().map(ChatToLinkConnection::getChatId)).containsExactlyInAnyOrder(3L, 4L);
+        assertThat(actualResult).containsExactlyInAnyOrder(
+            new ChatToLinkConnection(1L, linkId),
+            new ChatToLinkConnection(2L, linkId)
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void findAllByLinkIdTest() {
+        chatRepository.createIfNotExist(1L);
+        chatRepository.createIfNotExist(2L);
+        long linkId = linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+
+        connectionRepository.createIfNotExist(1L, linkId);
+        connectionRepository.createIfNotExist(2L, linkId);
+
+        List<ChatToLinkConnection> actualResult = connectionRepository.findAllByLinkId(linkId);
+
+        assertThat(actualResult).containsExactlyInAnyOrder(
+            new ChatToLinkConnection(1L, linkId),
+            new ChatToLinkConnection(2L, linkId)
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void findAllByLinkChatTest() {
+        chatRepository.createIfNotExist(1L);
+        long firstLink =
+                linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        long secondLink =
+                linkRepository.createIfNotExist("www.google.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+
+        connectionRepository.createIfNotExist(1L, firstLink);
+        connectionRepository.createIfNotExist(1L, secondLink);
+
+        List<ChatToLinkConnection> actualResult = connectionRepository.findAllByChatId(1L);
+
+        assertThat(actualResult).containsExactlyInAnyOrder(
+            new ChatToLinkConnection(1L, firstLink),
+            new ChatToLinkConnection(1L, secondLink)
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void findByComplexIdTest() throws AlreadyExistException, RepeatedRegistrationException {
+        chatRepository.createIfNotExist(1L);
+        long linkId =
+                linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+
+        connectionRepository.createIfNotExist(1L, linkId);
+
+        Optional<ChatToLinkConnection> actualResult = connectionRepository.findByComplexId(1L, linkId);
+
+        assertThat(actualResult).isPresent();
+        assertThat(actualResult.get()).isEqualTo(new ChatToLinkConnection(1L, linkId));
     }
 }

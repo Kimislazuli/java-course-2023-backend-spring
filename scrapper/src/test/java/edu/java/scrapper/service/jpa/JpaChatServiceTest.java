@@ -16,7 +16,7 @@ import static org.junit.Assert.assertThrows;
 
 @SpringBootTest(properties = {"app.database-access-type=jpa", "app.retry-config.backoff-type=linear", "app.retry-config.status-codes=500, 501",
     "app.retry-config.jitter=0.1", "app.retry-config.attempts=2", "app.retry-config.min-delay=200"})
-public class ChatServiceTest extends IntegrationTest {
+public class JpaChatServiceTest extends IntegrationTest {
     @Autowired
     TgChatService tgChatService;
     @Autowired

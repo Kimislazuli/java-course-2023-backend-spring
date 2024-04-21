@@ -1,6 +1,7 @@
 package edu.java.bot.configuration;
 
-import edu.java.bot.configuration.backoff_retry.BackoffType;
+
+import edu.java.models.dto.backoff_retry.BackoffType;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

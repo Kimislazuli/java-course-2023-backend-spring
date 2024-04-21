@@ -3,12 +3,12 @@ package edu.java.scrapper.service.processing_services.jpa_impl;
 import edu.java.scrapper.domain.dao.jpa.JpaChatDao;
 import edu.java.scrapper.domain.dao.jpa.JpaChatToLinkConnectionDao;
 import edu.java.scrapper.domain.dao.jpa.JpaLinkDao;
+import edu.java.scrapper.domain.model.chat.Chat;
 import edu.java.scrapper.domain.model.connection.ChatToLinkConnection;
 import edu.java.scrapper.domain.model.connection.ConnectionPK;
 import edu.java.scrapper.domain.model.link.Link;
 import edu.java.scrapper.exception.AlreadyExistException;
 import edu.java.scrapper.exception.NotExistException;
-import edu.java.scrapper.exception.RepeatedRegistrationException;
 import edu.java.scrapper.service.processing_services.LinkService;
 import jakarta.transaction.Transactional;
 import java.net.URI;
@@ -31,8 +31,11 @@ public class JpaLinkService implements LinkService {
     @Override
     @Transactional
     public Link add(long tgChatId, URI url)
-        throws AlreadyExistException, RepeatedRegistrationException, NotExistException {
-        chatDao.findById(tgChatId).orElseThrow(() -> new NotExistException(CHAT_NOT_EXIST));
+        throws AlreadyExistException {
+        Optional<Chat> chatOptional = chatDao.findById(tgChatId);
+        if (chatOptional.isEmpty()) {
+            chatDao.saveAndFlush(new Chat(tgChatId));
+        }
 
         Optional<Link> linkOptional = linkDao.findByUrl(url.toString());
         Link link;
@@ -66,7 +69,7 @@ public class JpaLinkService implements LinkService {
                 connectionDao.deleteById(pk);
                 List<Long> chatIds = connectionDao.findAllChatsByLinkId(link.getId());
                 if (chatIds.isEmpty()) {
-                    linkDao.deleteById(link.getId());
+                    linkDao.delete(link);
                 }
                 return link;
             } else {
