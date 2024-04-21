@@ -1,4 +1,4 @@
-package edu.java.scrapper.service.jdbc_impl;
+package edu.java.scrapper.service.processing_services.jdbc_impl;
 
 import edu.java.scrapper.domain.dao.jdbc.JdbcChatDao;
 import edu.java.scrapper.domain.dao.jdbc.JdbcChatToLinkConnectionDao;

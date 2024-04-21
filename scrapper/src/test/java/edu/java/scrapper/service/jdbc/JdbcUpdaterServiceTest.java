@@ -5,7 +5,7 @@ import edu.java.scrapper.domain.dao.jdbc.JdbcChatToLinkConnectionDao;
 import edu.java.scrapper.domain.dao.jdbc.JdbcLinkDao;
 import edu.java.scrapper.domain.model.link.Link;
 import edu.java.scrapper.exception.NotExistException;
-import edu.java.scrapper.service.UpdaterService;
+import edu.java.scrapper.service.processing_services.UpdaterService;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
