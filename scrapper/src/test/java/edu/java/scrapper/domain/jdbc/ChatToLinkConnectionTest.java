@@ -111,8 +111,8 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
         List<ChatToLinkConnection> actualResult = connectionRepository.findAll();
 
         assertThat(actualResult).containsExactlyInAnyOrder(
-                new ChatToLinkConnection(1L, linkId),
-                new ChatToLinkConnection(2L, linkId)
+            new ChatToLinkConnection(1L, linkId),
+            new ChatToLinkConnection(2L, linkId)
         );
     }
 
@@ -122,8 +122,7 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
     void findAllByLinkIdTest() {
         chatRepository.createIfNotExist(1L);
         chatRepository.createIfNotExist(2L);
-        long linkId =
-                linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        long linkId = linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
 
         connectionRepository.createIfNotExist(1L, linkId);
         connectionRepository.createIfNotExist(2L, linkId);
@@ -131,8 +130,8 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
         List<ChatToLinkConnection> actualResult = connectionRepository.findAllByLinkId(linkId);
 
         assertThat(actualResult).containsExactlyInAnyOrder(
-                new ChatToLinkConnection(1L, linkId),
-                new ChatToLinkConnection(2L, linkId)
+            new ChatToLinkConnection(1L, linkId),
+            new ChatToLinkConnection(2L, linkId)
         );
     }
 
@@ -152,8 +151,8 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
         List<ChatToLinkConnection> actualResult = connectionRepository.findAllByChatId(1L);
 
         assertThat(actualResult).containsExactlyInAnyOrder(
-                new ChatToLinkConnection(1L, firstLink),
-                new ChatToLinkConnection(1L, secondLink)
+            new ChatToLinkConnection(1L, firstLink),
+            new ChatToLinkConnection(1L, secondLink)
         );
     }
 

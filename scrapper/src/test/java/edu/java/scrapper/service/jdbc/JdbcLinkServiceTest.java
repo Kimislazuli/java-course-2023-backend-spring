@@ -19,7 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 
@@ -84,7 +83,6 @@ public class JdbcLinkServiceTest extends IntegrationTest {
 
         linkService.remove(1L, URI.create("www.url.com"));
 
-//        System.out.println((linkService.listAll(1L));
         assertThat(linkDao.getLinkById(link.getId())).isEmpty();
     }
 
