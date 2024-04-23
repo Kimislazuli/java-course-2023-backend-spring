@@ -1,6 +1,9 @@
 package edu.java.scrapper.client;
 
+import edu.java.scrapper.dto.github.GithubActivityResponse;
 import edu.java.scrapper.dto.github.GithubResponse;
+import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +35,25 @@ public class GithubClient {
                 .map(List::getFirst);
         } catch (Exception e) {
             return Optional.empty();
+        }
+    }
+
+    public List<GithubActivityResponse> fetchActivity(String user, String repository, OffsetDateTime afterTime) {
+        String link = String.format("/repos/%s/%s/activity", user, repository);
+        try {
+            return webClient
+                    .get()
+                    .uri(url -> url.path(link).build())
+                    .retrieve()
+                    .bodyToFlux(GithubActivityResponse.class)
+                    .collectList()
+                    .retryWhen(retryBackoff)
+                    .block()
+                    .stream()
+                    .filter(s -> s.timestamp().isAfter(afterTime))
+                    .toList();
+        } catch (NullPointerException e) {
+            return Collections.emptyList();
         }
     }
 }

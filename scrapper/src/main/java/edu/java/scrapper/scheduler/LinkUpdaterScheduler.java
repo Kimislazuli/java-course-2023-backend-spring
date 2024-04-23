@@ -1,9 +1,11 @@
-package edu.java.scrapper.sceduler;
+package edu.java.scrapper.scheduler;
 
 import edu.java.models.dto.LinkUpdate;
+import edu.java.models.dto.UpdateType;
 import edu.java.scrapper.client.GithubClient;
 import edu.java.scrapper.client.StackOverflowClient;
 import edu.java.scrapper.domain.model.link.Link;
+import edu.java.scrapper.dto.github.GithubActivityResponse;
 import edu.java.scrapper.dto.github.GithubResponse;
 import edu.java.scrapper.dto.stackoverflow.StackOverflowResponse;
 import edu.java.scrapper.exception.NotExistException;
@@ -30,6 +32,9 @@ public class LinkUpdaterScheduler {
     private final GithubClient githubClient;
     private final StackOverflowClient stackOverflowClient;
 
+    private static final String PUSH = "push";
+    private static final String PR = "pr_merge";
+
     @Scheduled(fixedDelayString = "${app.scheduler.interval}")
     public void update() throws NotExistException {
         log.info("Check updates");
@@ -53,7 +58,26 @@ public class LinkUpdaterScheduler {
         if (optionalGithubResponse.isPresent()) {
             GithubResponse githubResponse = optionalGithubResponse.get();
             if (link.getLastUpdate().isBefore(githubResponse.lastModified())) {
-                performTableUpdateAndTelegramNotification(link.getId(), link.getUrl(), githubResponse.lastModified());
+                List<GithubActivityResponse> activityResponses =
+                    githubClient.fetchActivity(owner, repo, githubResponse.lastModified());
+                for (GithubActivityResponse response : activityResponses) {
+                    if (response.activityType().equals(PUSH) || response.activityType().equals(PR)) {
+                        performTableUpdateAndTelegramNotification(
+                            link.getId(),
+                            link.getUrl(),
+                            githubResponse.lastModified(),
+                            response.activityType(),
+                            response.actor().login()
+                        );
+                    } else {
+                        performTableUpdateAndTelegramNotification(
+                            link.getId(),
+                            link.getUrl(),
+                            githubResponse.lastModified()
+                        );
+                    }
+                }
+
             }
         }
     }
@@ -74,7 +98,26 @@ public class LinkUpdaterScheduler {
     public void performTableUpdateAndTelegramNotification(long linkId, String url, OffsetDateTime updatedAt)
         throws NotExistException {
         updaterService.update(linkId, updatedAt);
-        List<Long> linkedChats = linkService.linkedChatIds(linkId);
-        service.send(new LinkUpdate(linkId, url, "link updated", linkedChats));
+        List<Long> linkedChatIds = linkService.linkedChatIds(linkId);
+        service.send(new LinkUpdate(linkId, url, "", linkedChatIds, UpdateType.DEFAULT));
+    }
+
+    public void performTableUpdateAndTelegramNotification(
+        long linkId,
+        String url,
+        OffsetDateTime updatedAt,
+        String activityType,
+        String actorLogin
+    )
+        throws NotExistException {
+        updaterService.update(linkId, updatedAt);
+        List<Long> linkedChatIds = linkService.linkedChatIds(linkId);
+        if (activityType.equals(PUSH)) {
+            service.send(new LinkUpdate(linkId, url, actorLogin, linkedChatIds, UpdateType.PUSH));
+        } else if (activityType.equals(PR)) {
+            service.send(new LinkUpdate(linkId, url, actorLogin, linkedChatIds, UpdateType.PR_MERGE));
+        } else {
+            service.send(new LinkUpdate(linkId, url, "", linkedChatIds, UpdateType.DEFAULT));
+        }
     }
 }

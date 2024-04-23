@@ -3,6 +3,8 @@ package edu.java.scrapper.client;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import java.time.Duration;
 import java.util.List;
+import edu.java.models.dto.LinkUpdate;
+import edu.java.models.dto.UpdateType;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -31,9 +33,9 @@ public class BotClientTest {
     @Test
     void updatesTest() {
         stubFor(post(urlEqualTo("/updates")).willReturn(aResponse().withStatus(200)));
-
-        client.updates(1L, "url","description", List.of(1L, 2L));
+        LinkUpdate update = new LinkUpdate(1L, "url","description", List.of(1L, 2L), UpdateType.DEFAULT);
+        client.updates(update);
         String requestBody = server.getAllServeEvents().getFirst().getRequest().getBodyAsString();
-        assertThat(requestBody).isEqualTo("{\"id\":1,\"url\":\"url\",\"description\":\"description\",\"tgChatIds\":[1,2]}");
+        assertThat(requestBody).isEqualTo("{\"id\":1,\"url\":\"url\",\"description\":\"description\",\"tgChatIds\":[1,2],\"updateType\":\"DEFAULT\"}");
     }
 }
