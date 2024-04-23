@@ -12,5 +12,5 @@ public interface TgChatService {
 
     Optional<Chat> getChat(long tgChatId);
 
-    void setState(long chatId, int state);
+    void setState(long chatId, int state) throws NotExistException;
 }

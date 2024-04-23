@@ -9,11 +9,11 @@ import java.util.Collection;
 import java.util.List;
 
 public interface LinkService {
-    Link add(long tgChatId, URI url) throws AlreadyExistException, RepeatedRegistrationException;
+    Link add(long tgChatId, URI url) throws AlreadyExistException, RepeatedRegistrationException, NotExistException;
 
     Link remove(long tgChatId, URI url) throws NotExistException;
 
     Collection<Link> listAll(long tgChatId);
 
-    List<Long> linkedChats(long linkId);
+    List<Long> linkedChatIds(long linkId);
 }

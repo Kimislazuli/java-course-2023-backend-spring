@@ -35,13 +35,13 @@ public class LinkDaoTest extends IntegrationTest {
     @BeforeEach
     void setUp() {
         try (Connection connection = POSTGRES.createConnection("");
-             PreparedStatement sqlQueryChat = connection.prepareStatement("DELETE FROM public.chat");
-             PreparedStatement sqlQueryLink = connection.prepareStatement("DELETE FROM public.link");
-             PreparedStatement sqlQueryConnection = connection.prepareStatement("DELETE FROM public.chat_to_link_connection");
-        ) {
-            sqlQueryConnection.execute();
-            sqlQueryChat.execute();
-            sqlQueryLink.execute();
+             PreparedStatement deleteChat = connection.prepareStatement("DELETE FROM public.chat");
+             PreparedStatement deleteLink = connection.prepareStatement("DELETE FROM public.link");
+             PreparedStatement deleteConnection = connection.prepareStatement(
+                 "DELETE FROM public.chat_to_link_connection")) {
+            deleteConnection.execute();
+            deleteChat.execute();
+            deleteLink.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -104,7 +104,6 @@ public class LinkDaoTest extends IntegrationTest {
         );
     }
 
-
     @Test
     @Transactional
     @Rollback
@@ -114,7 +113,7 @@ public class LinkDaoTest extends IntegrationTest {
         Optional<Link> actualResult = linkDao.getLinkByUrl("www.url.com");
 
         assertThat(actualResult).isPresent();
-        assertThat(actualResult.get().url()).isEqualTo("www.url.com");
+        assertThat(actualResult.get().getUrl()).isEqualTo("www.url.com");
     }
 
     @Test
@@ -126,8 +125,8 @@ public class LinkDaoTest extends IntegrationTest {
         Optional<Link> actualResult = linkDao.getLinkById(id);
 
         assertThat(actualResult).isPresent();
-        assertThat(actualResult.get().id()).isEqualTo(id);
-        assertThat(actualResult.get().url()).isEqualTo("www.url.com");
+        assertThat(actualResult.get().getId()).isEqualTo(id);
+        assertThat(actualResult.get().getUrl()).isEqualTo("www.url.com");
     }
 
     @Test
@@ -143,6 +142,6 @@ public class LinkDaoTest extends IntegrationTest {
         connectionDao.createIfNotExist(1L, id2);
         List<Link> actualResult = linkDao.findAllLinksByChatId(1L);
 
-        assertThat(actualResult.stream().map(Link::id)).containsExactlyInAnyOrder(id1, id2);
+        assertThat(actualResult.stream().map(Link::getId)).containsExactlyInAnyOrder(id1, id2);
     }
 }

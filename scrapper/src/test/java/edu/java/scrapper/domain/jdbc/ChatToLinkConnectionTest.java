@@ -37,13 +37,13 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
     @BeforeEach
     void setUp() {
         try (Connection connection = POSTGRES.createConnection("");
-             PreparedStatement sqlQueryChat = connection.prepareStatement("DELETE FROM public.chat");
-             PreparedStatement sqlQueryLink = connection.prepareStatement("DELETE FROM public.link");
-             PreparedStatement sqlQueryConnection = connection.prepareStatement("DELETE FROM public.chat_to_link_connection");
-        ) {
-            sqlQueryConnection.execute();
-            sqlQueryChat.execute();
-            sqlQueryLink.execute();
+             PreparedStatement deleteChat = connection.prepareStatement("DELETE FROM public.chat");
+             PreparedStatement deleteLink = connection.prepareStatement("DELETE FROM public.link");
+             PreparedStatement deleteConnection = connection.prepareStatement(
+                 "DELETE FROM public.chat_to_link_connection")) {
+            deleteConnection.execute();
+            deleteChat.execute();
+            deleteLink.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -122,7 +122,8 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
     void findAllByLinkIdTest() {
         chatRepository.createIfNotExist(1L);
         chatRepository.createIfNotExist(2L);
-        long linkId = linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        long linkId =
+            linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
 
         connectionRepository.createIfNotExist(1L, linkId);
         connectionRepository.createIfNotExist(2L, linkId);
@@ -140,8 +141,10 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
     @Rollback
     void findAllByLinkChatTest() {
         chatRepository.createIfNotExist(1L);
-        long firstLink = linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
-        long secondLink = linkRepository.createIfNotExist("www.google.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        long firstLink =
+            linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        long secondLink =
+            linkRepository.createIfNotExist("www.google.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
 
         connectionRepository.createIfNotExist(1L, firstLink);
         connectionRepository.createIfNotExist(1L, secondLink);
@@ -159,7 +162,8 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
     @Rollback
     void findByComplexIdTest() throws AlreadyExistException, RepeatedRegistrationException {
         chatRepository.createIfNotExist(1L);
-        long linkId = linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        long linkId =
+            linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
 
         connectionRepository.createIfNotExist(1L, linkId);
 

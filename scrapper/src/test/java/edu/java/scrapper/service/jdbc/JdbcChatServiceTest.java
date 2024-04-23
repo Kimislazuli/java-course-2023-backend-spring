@@ -6,8 +6,8 @@ import edu.java.scrapper.domain.model.chat.Chat;
 import edu.java.scrapper.exception.AlreadyExistException;
 import edu.java.scrapper.exception.NotExistException;
 import edu.java.scrapper.exception.RepeatedRegistrationException;
+import edu.java.scrapper.service.LinkService;
 import edu.java.scrapper.service.TgChatService;
-import edu.java.scrapper.service.jdbc_impl.JdbcLinkService;
 import java.net.URI;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,14 +20,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 
-@SpringBootTest
-public class TgChatServiceTest extends IntegrationTest {
+@SpringBootTest(properties = {"app.database-access-type=jdbc"})
+public class JdbcChatServiceTest extends IntegrationTest {
     @Autowired
     TgChatService tgChatService;
     @Autowired
     JdbcChatDao jdbcTgChatRepository;
     @Autowired
-    JdbcLinkService linkService;
+    LinkService linkService;
 
     @BeforeEach
     void setUp() {
@@ -50,7 +50,7 @@ public class TgChatServiceTest extends IntegrationTest {
 
         Optional<Chat> chat = jdbcTgChatRepository.getById(1L);
         assertThat(chat).isPresent();
-        assertThat(chat.get().id()).isEqualTo(1L);
+        assertThat(chat.get().getId()).isEqualTo(1L);
     }
 
     @Test
@@ -59,7 +59,7 @@ public class TgChatServiceTest extends IntegrationTest {
 
         Optional<Chat> chat = jdbcTgChatRepository.getById(1L);
         assertThat(chat).isPresent();
-        assertThat(chat.get().id()).isEqualTo(1L);
+        assertThat(chat.get().getId()).isEqualTo(1L);
     }
 
     @Test
@@ -100,17 +100,17 @@ public class TgChatServiceTest extends IntegrationTest {
     }
 
     @Test
-    void setStateTest() throws RepeatedRegistrationException {
+    void setStateTest() throws RepeatedRegistrationException, NotExistException {
         tgChatService.register(1L);
         Optional<Chat> chat = tgChatService.getChat(1L);
         assertThat(chat).isPresent();
-        assertThat(chat.get().id()).isEqualTo(1L);
-        assertThat(chat.get().state()).isEqualTo(0);
+        assertThat(chat.get().getId()).isEqualTo(1L);
+        assertThat(chat.get().getState()).isEqualTo(0);
 
         tgChatService.setState(1L, 2);
         Optional<Chat> actualResult = tgChatService.getChat(1L);
         assertThat(actualResult).isPresent();
-        assertThat(actualResult.get().id()).isEqualTo(1L);
-        assertThat(actualResult.get().state()).isEqualTo(2);
+        assertThat(actualResult.get().getId()).isEqualTo(1L);
+        assertThat(actualResult.get().getState()).isEqualTo(2);
     }
 }

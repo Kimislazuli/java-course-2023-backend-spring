@@ -7,9 +7,7 @@ import jakarta.transaction.Transactional;
 import java.time.OffsetDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-@Service
 @Transactional
 @RequiredArgsConstructor
 public class JdbcUpdaterService implements UpdaterService {

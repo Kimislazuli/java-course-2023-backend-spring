@@ -46,14 +46,15 @@ public class ScrapperController implements ScrapperApi {
     public ResponseEntity<ChatResponse> getChat(Long id) {
         Optional<Chat> chat = tgChatService.getChat(id);
         return chat.map(
-            value -> ResponseEntity.ok().body(new ChatResponse(value.id(), value.state()))
+            value -> ResponseEntity.ok().body(new ChatResponse(value.getId(), value.getState()))
         ).orElseGet(
             () -> ResponseEntity.ok().body(new ChatResponse(-1, -1))
         );
     }
 
     @Override
-    public ResponseEntity<Void> changeChatState(@PathVariable Long id, @RequestHeader("State") int state) {
+    public ResponseEntity<Void> changeChatState(@PathVariable Long id, @RequestHeader("State") int state)
+        throws NotExistException {
         log.info("Process request on /tg-chat/{}/change_state POST", id);
         tgChatService.setState(id, state);
         return ResponseEntity.ok().build();
@@ -64,14 +65,14 @@ public class ScrapperController implements ScrapperApi {
         log.info("Process request on /links GET for {}", id);
         List<LinkResponse> links = linkService.listAll(id)
             .stream()
-            .map(l -> new LinkResponse(l.id(), URI.create(l.url())))
+            .map(l -> new LinkResponse(l.getId(), URI.create(l.getUrl())))
             .toList();
         return new ListLinksResponse(links, links.size());
     }
 
     @Override
     public void addLink(@RequestHeader("Tg-Chat-Id") Long id, @RequestBody AddLinkRequest addLinkRequest)
-        throws RepeatedRegistrationException, AlreadyExistException {
+        throws RepeatedRegistrationException, AlreadyExistException, NotExistException {
         log.info("Process request on /links POST for {} and {}", id, addLinkRequest);
         linkService.add(id, addLinkRequest.link());
     }

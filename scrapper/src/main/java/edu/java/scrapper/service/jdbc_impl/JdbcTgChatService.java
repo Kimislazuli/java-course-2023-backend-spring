@@ -12,9 +12,7 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-@Service
 @Transactional
 @RequiredArgsConstructor
 public class JdbcTgChatService implements TgChatService {
@@ -47,7 +45,7 @@ public class JdbcTgChatService implements TgChatService {
 
         List<Long> links = connectionDao.findAllByChatId(tgChatId)
             .stream()
-            .map(ChatToLinkConnection::linkId)
+            .map(ChatToLinkConnection::getLinkId)
             .toList();
 
         for (Long linkId : links) {

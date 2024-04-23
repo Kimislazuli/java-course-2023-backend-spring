@@ -19,11 +19,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 
-@SpringBootTest
-public class LinkServiceTest extends IntegrationTest {
+@SpringBootTest(properties = {"app.database-access-type=jdbc"})
+@Transactional
+public class JdbcLinkServiceTest extends IntegrationTest {
     @Autowired
     LinkService linkService;
     @Autowired
@@ -53,16 +55,16 @@ public class LinkServiceTest extends IntegrationTest {
         chatDao.createIfNotExist(1L);
         Link link = linkService.add(1L, URI.create("string"));
 
-        assertThat(linkDao.getLinkById(link.id())).isPresent();
-        assertThat(connectionDao.findByComplexId(1L, link.id())).isPresent();
+        assertThat(linkDao.getLinkById(link.getId())).isPresent();
+        assertThat(connectionDao.findByComplexId(1L, link.getId())).isPresent();
     }
 
     @Test
     void registerIfChatNotExistTest() throws RepeatedRegistrationException, NotExistException, AlreadyExistException {
         Link link = linkService.add(1L, URI.create("string"));
 
-        assertThat(linkDao.getLinkById(link.id())).isPresent();
-        assertThat(connectionDao.findByComplexId(1L, link.id())).isPresent();
+        assertThat(linkDao.getLinkById(link.getId())).isPresent();
+        assertThat(connectionDao.findByComplexId(1L, link.getId())).isPresent();
     }
 
     @Test
@@ -81,7 +83,9 @@ public class LinkServiceTest extends IntegrationTest {
         Link link = linkService.add(1L, URI.create("www.url.com"));
 
         linkService.remove(1L, URI.create("www.url.com"));
-        assertThat(linkDao.getLinkById(link.id())).isEmpty();
+
+//        System.out.println((linkService.listAll(1L));
+        assertThat(linkDao.getLinkById(link.getId())).isEmpty();
     }
 
     @Test
@@ -94,7 +98,9 @@ public class LinkServiceTest extends IntegrationTest {
     }
 
     @Test
-    void removeIfConnectionNotExistTest() throws RepeatedRegistrationException, AlreadyExistException {
+    void removeIfConnectionNotExistTest() throws RepeatedRegistrationException, AlreadyExistException,
+        NotExistException {
+        chatDao.createIfNotExist(1L);
         chatDao.createIfNotExist(1L);
         linkService.add(2L, URI.create("www.url.com"));
 
@@ -104,23 +110,23 @@ public class LinkServiceTest extends IntegrationTest {
     }
 
     @Test
-    void listTest() throws RepeatedRegistrationException, AlreadyExistException {
+    void listTest() throws RepeatedRegistrationException, AlreadyExistException, NotExistException {
         chatDao.createIfNotExist(1L);
         linkService.add(1L, URI.create("1"));
         linkService.add(1L, URI.create("2"));
         Collection<Link> actualResult = linkService.listAll(1L);
 
-        assertThat(actualResult.stream().map(Link::url)).containsExactlyInAnyOrder("1", "2");
+        assertThat(actualResult.stream().map(Link::getUrl)).containsExactlyInAnyOrder("1", "2");
     }
 
     @Test
-    void linkedChatsTest() throws RepeatedRegistrationException, AlreadyExistException {
+    void linkedChatsTest() throws RepeatedRegistrationException, AlreadyExistException, NotExistException {
         chatDao.createIfNotExist(1L);
         chatDao.createIfNotExist(2L);
         Link link = linkService.add(1L, URI.create("string"));
         linkService.add(2L, URI.create("string"));
 
-        List<Long> actualResult = linkService.linkedChats(link.id());
+        List<Long> actualResult = linkService.linkedChatIds(link.getId());
         assertThat(actualResult).containsExactlyInAnyOrder(1L, 2L);
     }
 }

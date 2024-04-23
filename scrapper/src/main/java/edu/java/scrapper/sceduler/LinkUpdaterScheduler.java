@@ -6,6 +6,7 @@ import edu.java.scrapper.client.StackOverflowClient;
 import edu.java.scrapper.domain.model.link.Link;
 import edu.java.scrapper.dto.github.GithubResponse;
 import edu.java.scrapper.dto.stackoverflow.StackOverflowResponse;
+import edu.java.scrapper.exception.NotExistException;
 import edu.java.scrapper.service.LinkService;
 import edu.java.scrapper.service.UpdaterService;
 import java.time.Duration;
@@ -29,12 +30,12 @@ public class LinkUpdaterScheduler {
     private final StackOverflowClient stackOverflowClient;
 
     @Scheduled(fixedDelayString = "${app.scheduler.interval}")
-    public void update() {
+    public void update() throws NotExistException {
         log.info("Check updates");
-        List<Link> links = updaterService.findOldLinksToUpdate(OffsetDateTime.now().minus(Duration.ofSeconds(10)));
+        List<Link> links = updaterService.findOldLinksToUpdate(OffsetDateTime.now().minus(Duration.ofMinutes(10)));
         for (Link link : links) {
-            updaterService.check(link.id(), OffsetDateTime.now());
-            if (link.url().contains("github")) {
+            updaterService.check(link.getId(), OffsetDateTime.now());
+            if (link.getUrl().contains("github")) {
                 githubUpdate(link);
             } else {
                 stackOverflowUpdate(link);
@@ -43,31 +44,36 @@ public class LinkUpdaterScheduler {
         log.info("Check completed");
     }
 
-    public void githubUpdate(Link link) {
-        String[] urlParts = link.url().split("/");
+    public void githubUpdate(Link link) throws NotExistException {
+        String[] urlParts = link.getUrl().split("/");
         String owner = urlParts[urlParts.length - 2];
         String repo = urlParts[urlParts.length - 1];
         Optional<GithubResponse> optionalGithubResponse = githubClient.fetchLastModificationTime(owner, repo);
         if (optionalGithubResponse.isPresent()) {
             GithubResponse githubResponse = optionalGithubResponse.get();
-            if (link.lastUpdate().isBefore(githubResponse.lastModified())) {
-                performTableUpdateAndTelegramNotification(link.id(), link.url(), githubResponse.lastModified());
+            if (link.getLastUpdate().isBefore(githubResponse.lastModified())) {
+                performTableUpdateAndTelegramNotification(link.getId(), link.getUrl(), githubResponse.lastModified());
             }
         }
     }
 
-    public void stackOverflowUpdate(Link link) {
-        String[] urlParts = link.url().split("/");
+    public void stackOverflowUpdate(Link link) throws NotExistException {
+        String[] urlParts = link.getUrl().split("/");
         int question = Integer.getInteger(urlParts[urlParts.length - 1]);
         StackOverflowResponse stackOverflowResponse = stackOverflowClient.fetchLastModificationTime(question);
-        if (link.lastUpdate().isBefore(stackOverflowResponse.lastModified())) {
-            performTableUpdateAndTelegramNotification(link.id(), link.url(), stackOverflowResponse.lastModified());
+        if (link.getLastUpdate().isBefore(stackOverflowResponse.lastModified())) {
+            performTableUpdateAndTelegramNotification(
+                link.getId(),
+                link.getUrl(),
+                stackOverflowResponse.lastModified()
+            );
         }
     }
 
-    public void performTableUpdateAndTelegramNotification(long linkId, String url, OffsetDateTime updatedAt) {
+    public void performTableUpdateAndTelegramNotification(long linkId, String url, OffsetDateTime updatedAt)
+        throws NotExistException {
         updaterService.update(linkId, updatedAt);
-        List<Long> linkedChats = linkService.linkedChats(linkId);
+        List<Long> linkedChats = linkService.linkedChatIds(linkId);
         botClient.updates(linkId, url, "link updated", linkedChats);
     }
 }

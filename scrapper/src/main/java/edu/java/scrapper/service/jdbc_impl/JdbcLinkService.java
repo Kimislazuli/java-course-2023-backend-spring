@@ -15,9 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-@Service
 @Transactional
 @RequiredArgsConstructor
 public class JdbcLinkService implements LinkService {
@@ -41,7 +39,7 @@ public class JdbcLinkService implements LinkService {
             link = new Link(linkId, url.toString(), timestamp, timestamp);
         } else {
             link = optionalLink.get();
-            linkId = link.id();
+            linkId = link.getId();
         }
 
         Optional<ChatToLinkConnection> id = connectionDao.createIfNotExist(tgChatId, linkId);
@@ -63,11 +61,11 @@ public class JdbcLinkService implements LinkService {
             throw new NotExistException("Link doesn't exist");
         } else {
             link = optionalLink.get();
-            linkId = link.id();
+            linkId = link.getId();
         }
 
         List<ChatToLinkConnection> connections = connectionDao.findAllByLinkId(linkId);
-        if (!connections.stream().anyMatch(p -> p.chatId() == tgChatId)) {
+        if (connections.stream().noneMatch(p -> p.getChatId() == tgChatId)) {
             throw new NotExistException("This pair doesn't exist");
         }
 
@@ -86,10 +84,10 @@ public class JdbcLinkService implements LinkService {
     }
 
     @Override
-    public List<Long> linkedChats(long linkId) {
+    public List<Long> linkedChatIds(long linkId) {
         return connectionDao.findAllByLinkId(linkId)
             .stream()
-            .map(ChatToLinkConnection::chatId)
+            .map(ChatToLinkConnection::getChatId)
             .toList();
     }
 
