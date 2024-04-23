@@ -36,7 +36,7 @@ public class LinkUpdaterScheduler {
     @Scheduled(fixedDelayString = "${app.scheduler.interval}")
     public void update() throws NotExistException {
         log.info("Check updates");
-        List<Link> links = updaterService.findOldLinksToUpdate(OffsetDateTime.now().minus(Duration.ofMinutes(5)));
+        List<Link> links = updaterService.findOldLinksToUpdate(OffsetDateTime.now().minus(Duration.ofMinutes(2)));
         for (Link link : links) {
             updaterService.check(link.getId(), OffsetDateTime.now());
             if (link.getUrl().contains("github")) {
@@ -54,12 +54,16 @@ public class LinkUpdaterScheduler {
         String repo = urlParts[urlParts.length - 1];
         List<GithubActivityResponse> activityResponses =
                 githubClient.fetchActivity(owner, repo, link.getLastUpdate());
+        if (!activityResponses.isEmpty()) {
+            OffsetDateTime lastUpdate = activityResponses.getFirst().timestamp();
+            updaterService.update(link.getId(), lastUpdate);
+        }
+
         for (GithubActivityResponse response : activityResponses) {
             if (response.activityType().equals(PUSH) || response.activityType().equals(PR)) {
-                performTableUpdateAndTelegramNotification(
+                performTelegramNotificationForSpecificGithubActivity(
                         link.getId(),
                         link.getUrl(),
-                        response.timestamp(),
                         response.activityType(),
                         response.actor().login()
                 );
@@ -94,15 +98,13 @@ public class LinkUpdaterScheduler {
         service.send(new LinkUpdate(linkId, url, "", linkedChatIds, UpdateType.DEFAULT));
     }
 
-    public void performTableUpdateAndTelegramNotification(
+    public void performTelegramNotificationForSpecificGithubActivity(
             long linkId,
             String url,
-            OffsetDateTime updatedAt,
             String activityType,
             String actorLogin
     )
             throws NotExistException {
-        updaterService.update(linkId, updatedAt);
         List<Long> linkedChatIds = linkService.linkedChatIds(linkId);
         if (activityType.equals(PUSH)) {
             service.send(new LinkUpdate(linkId, url, actorLogin, linkedChatIds, UpdateType.PUSH));
