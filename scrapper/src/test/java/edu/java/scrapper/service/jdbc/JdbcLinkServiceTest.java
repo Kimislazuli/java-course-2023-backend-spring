@@ -23,7 +23,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 
-@SpringBootTest(properties = {"app.database-access-type=jdbc"})
+@SpringBootTest(properties = {"app.database-access-type=jdbc", "app.retry-config.backoff-type=linear", "app.retry-config.status-codes=500, 501",
+    "app.retry-config.jitter=0.1", "app.retry-config.attempts=2", "app.retry-config.min-delay=200"})
 @Transactional
 public class JdbcLinkServiceTest extends IntegrationTest {
     @Autowired
