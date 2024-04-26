@@ -17,8 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(properties = {"app.database-access-type=jdbc", "app.retry-config.backoff-type=linear", "app.retry-config.status-codes=500, 501",
-    "app.retry-config.jitter=0.1", "app.retry-config.attempts=2", "app.retry-config.min-delay=200"})
+@SpringBootTest(properties = {"app.database-access-type=jdbc"})
 public class JdbcUpdaterServiceTest extends IntegrationTest {
     @Autowired
     UpdaterService updaterService;

@@ -19,17 +19,16 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 
-@WireMockTest(httpPort = 8090)
+@WireMockTest(httpPort = 8095)
 @SpringBootTest(properties = {"app.retry-config.backoff-type=exponential",
-    "app.retry-config.status-codes=500",
-    "app.retry-config.jitter=0.1", "app.retry-config.attempts=2", "app.retry-config.min-delay=200", "server.port=8082"})
+    "app.retry-config.status-codes=500", "app.retry-config.attempts=2"})
 public class ScrapperRetryTest {
     static WireMockServer server = new WireMockServer();
     private ScrapperClient client;
 
     @Autowired
-    public ScrapperRetryTest(WebClient.Builder builder, Retry retry) {
-        this.client = new ScrapperClient(builder, "http://localhost:8090", retry);
+    public ScrapperRetryTest(Retry retry) {
+        this.client = new ScrapperClient(WebClient.builder(), "http://localhost:8095", retry);
     }
 
     @BeforeAll

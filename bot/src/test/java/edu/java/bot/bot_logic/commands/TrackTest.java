@@ -57,7 +57,7 @@ public class TrackTest {
 
     @Test
     void addLink() {
-        stubFor(post(urlEqualTo("/links")).withHeader("Tg-Chat-Id", WireMock.equalTo("7"))
+        server.stubFor(post(urlEqualTo("/links")).withHeader("Tg-Chat-Id", WireMock.equalTo("7"))
             .withRequestBody(equalToJson("""
                 {
                   "link": "link"

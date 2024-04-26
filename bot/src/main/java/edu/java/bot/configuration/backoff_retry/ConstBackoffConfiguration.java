@@ -11,7 +11,7 @@ import reactor.util.retry.Retry;
 
 @Slf4j
 @Configuration
-@ConditionalOnProperty(prefix = "app", name = "retry-config.back-off-type", havingValue = "const")
+@ConditionalOnProperty(prefix = "app", name = "retry-config.backoff-type", havingValue = "const")
 public class ConstBackoffConfiguration {
     @Bean
     public Retry backoffRetry(ApplicationConfig config) {

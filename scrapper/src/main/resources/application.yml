@@ -5,8 +5,8 @@ app:
     force-check-delay: 10000
   database-access-type: jpa
   retry-config:
-    back-off-type: exponential
-    attempts: 2
+    backoff-type: exponential
+    attempts: 1
     status-codes:
       - 500
       - 502
