@@ -11,7 +11,7 @@ import reactor.util.retry.Retry;
 
 @Slf4j
 @Configuration
-@ConditionalOnProperty(prefix = "app", name = "retry-config.back-off-type", havingValue = "exponential")
+@ConditionalOnProperty(prefix = "app", name = "retry-config.backoff-type", havingValue = "exponential")
 public class ExponentialBackoffRetryConfiguration {
     @Bean
     public Retry backoffRetry(ApplicationConfig config) {
@@ -20,7 +20,7 @@ public class ExponentialBackoffRetryConfiguration {
                 .contains(((WebClientResponseException) throwable).getStatusCode().value()))
             .doBeforeRetry(s -> log.info("Perform retry on {}", s.failure().getLocalizedMessage()))
             .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
-                log.error("Retry failed");
+                log.error("Max attempts reached");
                 throw new RetryException("External Service failed to process after max attempts");
             })
             .jitter(config.retryConfig().jitter());

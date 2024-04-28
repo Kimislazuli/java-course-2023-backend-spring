@@ -1,4 +1,4 @@
-package edu.java.scrapper.sceduler;
+package edu.java.scrapper.scheduler;
 
 import edu.java.models.dto.LinkUpdate;
 import edu.java.scrapper.client.GithubClient;

@@ -10,7 +10,7 @@ import reactor.util.retry.Retry;
 
 @Slf4j
 @Configuration
-@ConditionalOnProperty(prefix = "app", name = "retry-config.back-off-type", havingValue = "linear")
+@ConditionalOnProperty(prefix = "app", name = "retry-config.backoff-type", havingValue = "linear")
 public class LinearBackoffConfiguration {
     @Bean
     public Retry backoffRetry(ApplicationConfig config) {
