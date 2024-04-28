@@ -60,14 +60,16 @@ public class LinkUpdaterScheduler {
 
     public void stackOverflowUpdate(Link link) throws NotExistException {
         String[] urlParts = link.getUrl().split("/");
-        int question = Integer.getInteger(urlParts[urlParts.length - 1]);
-        StackOverflowResponse stackOverflowResponse = stackOverflowClient.fetchLastModificationTime(question);
-        if (link.getLastUpdate().isBefore(stackOverflowResponse.lastModified())) {
-            performTableUpdateAndTelegramNotification(
-                link.getId(),
-                link.getUrl(),
-                stackOverflowResponse.lastModified()
-            );
+        if (Integer.getInteger(urlParts[urlParts.length - 1]) != null) {
+            int question = Integer.getInteger(urlParts[urlParts.length - 1]);
+            StackOverflowResponse stackOverflowResponse = stackOverflowClient.fetchLastModificationTime(question);
+            if (link.getLastUpdate().isBefore(stackOverflowResponse.lastModified())) {
+                performTableUpdateAndTelegramNotification(
+                    link.getId(),
+                    link.getUrl(),
+                    stackOverflowResponse.lastModified()
+                );
+            }
         }
     }
 

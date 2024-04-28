@@ -22,7 +22,7 @@ app:
   topic:
     name: bot_updates
     partitions: 5
-    replicas: 2
+    replicas: 1
 
 github:
   base-url: https://api.github.com
