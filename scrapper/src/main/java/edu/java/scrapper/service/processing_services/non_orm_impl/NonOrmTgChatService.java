@@ -1,8 +1,8 @@
-package edu.java.scrapper.service.processing_services.jdbc_impl;
+package edu.java.scrapper.service.processing_services.non_orm_impl;
 
-import edu.java.scrapper.domain.dao.jdbc.JdbcChatDao;
-import edu.java.scrapper.domain.dao.jdbc.JdbcChatToLinkConnectionDao;
-import edu.java.scrapper.domain.dao.jdbc.JdbcLinkDao;
+import edu.java.scrapper.domain.dao.abstract_dao.ChatDao;
+import edu.java.scrapper.domain.dao.abstract_dao.ChatToLinkConnectionDao;
+import edu.java.scrapper.domain.dao.abstract_dao.LinkDao;
 import edu.java.scrapper.domain.model.chat.Chat;
 import edu.java.scrapper.domain.model.connection.ChatToLinkConnection;
 import edu.java.scrapper.exception.NotExistException;
@@ -15,10 +15,10 @@ import lombok.RequiredArgsConstructor;
 
 @Transactional
 @RequiredArgsConstructor
-public class JdbcTgChatService implements TgChatService {
-    private final JdbcLinkDao linkDao;
-    private final JdbcChatDao chatDao;
-    private final JdbcChatToLinkConnectionDao connectionDao;
+public class NonOrmTgChatService implements TgChatService {
+    private final LinkDao linkDao;
+    private final ChatDao chatDao;
+    private final ChatToLinkConnectionDao connectionDao;
 
     @Override
     public void register(long tgChatId) throws RepeatedRegistrationException {
@@ -67,7 +67,7 @@ public class JdbcTgChatService implements TgChatService {
     }
 
     @Override
-    public void setState(long chatId, int state) {
+    public void setState(long chatId, short state) {
         chatDao.setState(chatId, state);
     }
 }

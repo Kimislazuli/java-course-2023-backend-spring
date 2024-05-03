@@ -20,7 +20,7 @@ public class Chat {
     @Id
     long id;
 
-    int state;
+    short state;
 
     public Chat(long id) {
         this.id = id;

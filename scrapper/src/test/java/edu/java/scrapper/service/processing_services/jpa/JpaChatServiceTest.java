@@ -1,4 +1,4 @@
-package edu.java.scrapper.service.jpa;
+package edu.java.scrapper.service.processing_services.jpa;
 
 import edu.java.scrapper.IntegrationTest;
 import edu.java.scrapper.domain.dao.jpa.JpaChatDao;
@@ -16,7 +16,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 
-@SpringBootTest(properties = {"app.database-access-type=jpa", "app.retry-config.backoff-type=linear", "app.retry-config.status-codes=500, 501",
+@SpringBootTest(properties = {"app.database-access-type=jpa", "app.retry-config.backoff-type=linear",
+    "app.retry-config.status-codes=500, 501",
     "app.retry-config.jitter=0.1", "app.retry-config.attempts=2", "app.retry-config.min-delay=200"})
 public class JpaChatServiceTest extends IntegrationTest {
     @Autowired
@@ -73,7 +74,7 @@ public class JpaChatServiceTest extends IntegrationTest {
         Optional<Chat> chat = tgChatService.getChat(1L);
         assertThat(chat).isPresent();
         assertThat(chat.get().getId()).isEqualTo(1L);
-        assertThat(chat.get().getState()).isEqualTo(0);
+        assertThat(chat.get().getState()).isEqualTo((short) 0);
     }
 
     @Test
@@ -82,12 +83,12 @@ public class JpaChatServiceTest extends IntegrationTest {
         Optional<Chat> chat = tgChatService.getChat(1L);
         assertThat(chat).isPresent();
         assertThat(chat.get().getId()).isEqualTo(1L);
-        assertThat(chat.get().getState()).isEqualTo(0);
+        assertThat(chat.get().getState()).isEqualTo((short) 0);
 
-        tgChatService.setState(1L, 2);
+        tgChatService.setState(1L, (short) 2);
         Optional<Chat> actualResult = tgChatService.getChat(1L);
         assertThat(actualResult).isPresent();
         assertThat(actualResult.get().getId()).isEqualTo(1L);
-        assertThat(actualResult.get().getState()).isEqualTo(2);
+        assertThat(actualResult.get().getState()).isEqualTo((short) 2);
     }
 }

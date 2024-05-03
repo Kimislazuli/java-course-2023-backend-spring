@@ -1,8 +1,8 @@
-package edu.java.scrapper.service.processing_services.jdbc_impl;
+package edu.java.scrapper.service.processing_services.non_orm_impl;
 
-import edu.java.scrapper.domain.dao.jdbc.JdbcChatDao;
-import edu.java.scrapper.domain.dao.jdbc.JdbcChatToLinkConnectionDao;
-import edu.java.scrapper.domain.dao.jdbc.JdbcLinkDao;
+import edu.java.scrapper.domain.dao.abstract_dao.ChatDao;
+import edu.java.scrapper.domain.dao.abstract_dao.ChatToLinkConnectionDao;
+import edu.java.scrapper.domain.dao.abstract_dao.LinkDao;
 import edu.java.scrapper.domain.model.connection.ChatToLinkConnection;
 import edu.java.scrapper.domain.model.link.Link;
 import edu.java.scrapper.exception.AlreadyExistException;
@@ -18,10 +18,10 @@ import lombok.RequiredArgsConstructor;
 
 @Transactional
 @RequiredArgsConstructor
-public class JdbcLinkService implements LinkService {
-    private final JdbcLinkDao linkDao;
-    private final JdbcChatDao chatDao;
-    private final JdbcChatToLinkConnectionDao connectionDao;
+public class NonOrmLinkService implements LinkService {
+    private final LinkDao linkDao;
+    private final ChatDao chatDao;
+    private final ChatToLinkConnectionDao connectionDao;
 
     @Override
     public Link add(long tgChatId, URI url) throws AlreadyExistException {

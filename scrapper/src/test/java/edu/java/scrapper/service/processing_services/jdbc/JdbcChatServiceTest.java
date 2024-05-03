@@ -1,4 +1,4 @@
-package edu.java.scrapper.service.jdbc;
+package edu.java.scrapper.service.processing_services.jdbc;
 
 import edu.java.scrapper.IntegrationTest;
 import edu.java.scrapper.domain.dao.jdbc.JdbcChatDao;
@@ -8,15 +8,18 @@ import edu.java.scrapper.exception.NotExistException;
 import edu.java.scrapper.exception.RepeatedRegistrationException;
 import edu.java.scrapper.service.processing_services.LinkService;
 import edu.java.scrapper.service.processing_services.TgChatService;
+
 import java.net.URI;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 
@@ -105,12 +108,12 @@ public class JdbcChatServiceTest extends IntegrationTest {
         Optional<Chat> chat = tgChatService.getChat(1L);
         assertThat(chat).isPresent();
         assertThat(chat.get().getId()).isEqualTo(1L);
-        assertThat(chat.get().getState()).isEqualTo(0);
+        assertThat(chat.get().getState()).isEqualTo((short) 0);
 
-        tgChatService.setState(1L, 2);
+        tgChatService.setState(1L, (short) 2);
         Optional<Chat> actualResult = tgChatService.getChat(1L);
         assertThat(actualResult).isPresent();
         assertThat(actualResult.get().getId()).isEqualTo(1L);
-        assertThat(actualResult.get().getState()).isEqualTo(2);
+        assertThat(actualResult.get().getState()).isEqualTo((short) 2);
     }
 }

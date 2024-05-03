@@ -65,7 +65,7 @@ public interface ScrapperApi {
                                         schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping("/tg-chat/{id}/change_state")
-    ResponseEntity<Void> changeChatState(@PathVariable Long id, int state)
+    ResponseEntity<Void> changeChatState(@PathVariable Long id, short state)
         throws RepeatedRegistrationException, AlreadyExistException, NotExistException;
 
     @Operation(summary = "Получить все отслеживаемые ссылки")

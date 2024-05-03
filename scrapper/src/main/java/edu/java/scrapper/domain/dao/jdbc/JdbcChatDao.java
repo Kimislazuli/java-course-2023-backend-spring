@@ -1,5 +1,6 @@
 package edu.java.scrapper.domain.dao.jdbc;
 
+import edu.java.scrapper.domain.dao.abstract_dao.ChatDao;
 import  edu.java.scrapper.domain.model.chat.Chat;
 import edu.java.scrapper.domain.model.chat.ChatRowMapper;
 import edu.java.scrapper.exception.NotExistException;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Repository;
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class JdbcChatDao {
+public class JdbcChatDao implements ChatDao {
     private final JdbcClient client;
     private final ChatRowMapper mapper;
 
@@ -47,11 +48,11 @@ public class JdbcChatDao {
         return client.sql(query).param(id).query(mapper).optional();
     }
 
-    public void setState(long chatId, int state) {
+    public void setState(long chatId, short state) {
         if (state < 0 || state > 2) {
             throw new IllegalArgumentException("States have numbers from 0 to 2.");
         }
         String query = "UPDATE chat SET state = ? WHERE id = ?";
-        log.info(String.valueOf(client.sql(query).param(state).param(chatId).update()));
+        client.sql(query).param(state).param(chatId).update();
     }
 }

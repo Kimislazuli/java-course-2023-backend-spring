@@ -1,14 +1,12 @@
-package edu.java.scrapper.domain.jdbc;
+package edu.java.scrapper.domain.jooq;
 
 import edu.java.scrapper.IntegrationTest;
-import edu.java.scrapper.domain.dao.jdbc.JdbcChatDao;
+import edu.java.scrapper.domain.dao.jooq.JooqChatDao;
 import edu.java.scrapper.domain.model.chat.Chat;
 import edu.java.scrapper.exception.NotExistException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import org.jooq.DSLContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,25 +17,17 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest
+@SpringBootTest(properties = {"app.database-access-type=jooq"})
 public class ChatDaoTest extends IntegrationTest {
     @Autowired
-    private JdbcChatDao repository;
+    private JooqChatDao repository;
+    @Autowired
+    private DSLContext dsl;
 
     @BeforeEach
     void setUp() {
-        try (Connection connection = POSTGRES.createConnection("");
-             PreparedStatement sqlQueryChat = connection.prepareStatement("DELETE FROM public.chat");
-             PreparedStatement sqlQueryLink = connection.prepareStatement("DELETE FROM public.link");
-             PreparedStatement sqlQueryConnection = connection.prepareStatement(
-                 "DELETE FROM public.chat_to_link_connection");
-        ) {
-            sqlQueryConnection.execute();
-            sqlQueryChat.execute();
-            sqlQueryLink.execute();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        var connection = dsl.delete(Tables.CHAT_TO_LINK_CONNECTION).execute();
+        var chat = dsl.delete(Tables.CHAT).execute();
     }
 
     @Test
@@ -83,8 +73,6 @@ public class ChatDaoTest extends IntegrationTest {
     }
 
     @Test
-    @Transactional
-    @Rollback
     void getByIdTest() {
         repository.createIfNotExist(11L);
 
