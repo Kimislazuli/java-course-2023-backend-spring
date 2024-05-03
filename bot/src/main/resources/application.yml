@@ -1,7 +1,7 @@
 app:
   telegram-token: ${TOKEN}
   retry-config:
-    back-off-type: exponential
+    backoff-type: exponential
     attempts: 1
     status-codes:
       - 500
@@ -17,11 +17,11 @@ app:
   topic:
     name: bot_updates
     partitions: 5
-    replicas: 2
+    replicas: 1
   dead-letter-topic:
     name: updates_dl
     partitions: 5
-    replicas: 3
+    replicas: 1
 
 spring:
   application:

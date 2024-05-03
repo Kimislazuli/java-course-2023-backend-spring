@@ -12,7 +12,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.util.retry.Retry;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,7 +30,7 @@ public class GithubClientTest {
 
     @Test
     public void correctlyReceiveLastModificationTime() {
-        stubFor(get(urlEqualTo("/repos/johndoe/java/events?per_page=1")).willReturn(aResponse()
+        server.stubFor(get(urlEqualTo("/repos/johndoe/java/events?per_page=1")).willReturn(aResponse()
             .withStatus(200)
             .withHeader("Content-Type", "application/json")
             .withBody("""

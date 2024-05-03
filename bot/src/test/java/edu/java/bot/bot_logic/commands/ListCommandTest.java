@@ -55,7 +55,7 @@ public class ListCommandTest {
 
     @Test
     void emptyLinkList() {
-        stubFor(get(urlEqualTo("/links"))
+        server.stubFor(get(urlEqualTo("/links"))
             .withHeader("Tg-Chat-Id", WireMock.equalTo("7"))
             .willReturn(aResponse().withStatus(200)
                 .withHeader("content-type", "application/json")
