@@ -19,7 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest
+@SpringBootTest(properties = {"app.database-access-type=jpa", "app.retry-config.backoff-type=exponential",
+    "app.retry-config.status-codes=500",
+    "app.retry-config.jitter=0.1", "app.retry-config.attempts=2", "app.retry-config.min-delay=200"})
 public class ChatDaoTest extends IntegrationTest {
     @Autowired
     private JdbcChatDao repository;

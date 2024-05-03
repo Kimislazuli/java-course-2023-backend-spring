@@ -74,7 +74,6 @@ public class LinkUpdaterScheduler {
                         response.timestamp()
                 );
             }
-
         }
     }
 

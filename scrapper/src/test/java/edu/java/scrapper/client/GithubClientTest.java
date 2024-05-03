@@ -1,10 +1,10 @@
 package edu.java.scrapper.client;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import edu.java.scrapper.dto.github.GithubActivityResponse;
+import edu.java.scrapper.dto.github.GithubResponse;
 import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
