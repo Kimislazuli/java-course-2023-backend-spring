@@ -40,7 +40,7 @@ public class LinearRetry extends Retry {
             log.debug("retry {} with backoff {} seconds", rs.totalRetries(), delay.toSeconds());
             return Mono.delay(delay).thenReturn(rs.totalRetries());
         } else {
-            log.error("Retry failed");
+            log.error("Max attempts reached");
             return Mono.error(new RetryException("External Service failed to process after max attempts"));
         }
     }

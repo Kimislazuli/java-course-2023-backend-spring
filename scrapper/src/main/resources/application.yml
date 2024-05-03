@@ -6,7 +6,7 @@ app:
     force-check-delay: 10000
   database-access-type: jpa
   retry-config:
-    back-off-type: exponential
+    backoff-type: exponential
     attempts: 1
     status-codes:
       - 500
@@ -22,7 +22,7 @@ app:
   topic:
     name: bot_updates
     partitions: 5
-    replicas: 2
+    replicas: 1
 
 github:
   base-url: https://api.github.com
@@ -37,8 +37,8 @@ spring:
     enabled: false
   datasource:
     url: jdbc:postgresql://localhost:5432/scrapper
-    username: ${USERNAME}
-    password: ${PASSWORD}
+    username: postgres
+    password: postgres
     driver-class-name: org.postgresql.Driver
   jpa:
     show-sql: true
