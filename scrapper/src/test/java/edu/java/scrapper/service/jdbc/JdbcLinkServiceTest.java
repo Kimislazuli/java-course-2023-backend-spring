@@ -15,11 +15,11 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 
@@ -41,7 +41,7 @@ public class JdbcLinkServiceTest extends IntegrationTest {
              PreparedStatement sqlQueryChat = connection.prepareStatement("DELETE FROM public.chat");
              PreparedStatement sqlQueryLink = connection.prepareStatement("DELETE FROM public.link");
              PreparedStatement sqlQueryConnection = connection.prepareStatement("DELETE FROM public.chat_to_link_connection");
-             ) {
+        ) {
             sqlQueryConnection.execute();
             sqlQueryChat.execute();
             sqlQueryLink.execute();
@@ -84,7 +84,6 @@ public class JdbcLinkServiceTest extends IntegrationTest {
 
         linkService.remove(1L, URI.create("www.url.com"));
 
-//        System.out.println((linkService.listAll(1L));
         assertThat(linkDao.getLinkById(link.getId())).isEmpty();
     }
 
@@ -99,7 +98,7 @@ public class JdbcLinkServiceTest extends IntegrationTest {
 
     @Test
     void removeIfConnectionNotExistTest() throws RepeatedRegistrationException, AlreadyExistException,
-        NotExistException {
+            NotExistException {
         chatDao.createIfNotExist(1L);
         chatDao.createIfNotExist(1L);
         linkService.add(2L, URI.create("www.url.com"));

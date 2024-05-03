@@ -1,14 +1,15 @@
 package edu.java.scrapper.client;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import edu.java.scrapper.client.StackOverflowClient;
 import edu.java.scrapper.dto.stackoverflow.StackOverflowResponse;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.util.retry.Retry;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
@@ -34,7 +35,10 @@ public class StackOverflowClientTest {
             .withHeader("Content-Type", "application/json")
             .withBody("{\"items\": [{\"last_activity_date\": \"1704247028\"}]}")));
 
-        StackOverflowClient stackOverflowClient = new StackOverflowClient(WebClient.builder(), "http://localhost:8080");
+        StackOverflowClient stackOverflowClient = new StackOverflowClient(WebClient.builder(),
+            "http://localhost:8080",
+            Retry.backoff(2, Duration.ofMinutes(2))
+        );
 
         StackOverflowResponse
             actualResult = Objects.requireNonNull(stackOverflowClient.fetchLastModificationTime(7));

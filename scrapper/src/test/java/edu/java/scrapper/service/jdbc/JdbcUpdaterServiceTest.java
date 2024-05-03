@@ -44,9 +44,9 @@ public class JdbcUpdaterServiceTest extends IntegrationTest {
     @Test
     void checkTest() throws NotExistException {
         linkDao.createIfNotExist(
-            "www.url.com",
-            OffsetDateTime.parse("2020-05-20T05:40:08.721Z"),
-            OffsetDateTime.parse("2020-05-20T05:40:08.721Z")
+                "www.url.com",
+                OffsetDateTime.parse("2020-05-20T05:40:08.721Z"),
+                OffsetDateTime.parse("2020-05-20T05:40:08.721Z")
         );
 
         Optional<Link> link = linkDao.getLinkByUrl("www.url.com");
@@ -65,9 +65,9 @@ public class JdbcUpdaterServiceTest extends IntegrationTest {
     @Test
     void updateTest() throws NotExistException {
         linkDao.createIfNotExist(
-            "www.url.com",
-            OffsetDateTime.parse("2020-05-20T05:40:08.721Z"),
-            OffsetDateTime.parse("2020-05-20T05:40:08.721Z")
+                "www.url.com",
+                OffsetDateTime.parse("2020-05-20T05:40:08.721Z"),
+                OffsetDateTime.parse("2020-05-20T05:40:08.721Z")
         );
 
         Optional<Link> link = linkDao.getLinkByUrl("www.url.com");

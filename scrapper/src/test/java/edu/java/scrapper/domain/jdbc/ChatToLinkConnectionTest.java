@@ -23,7 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest
+@SpringBootTest(properties = {"app.database-access-type=jpa", "app.retry-config.backoff-type=exponential",
+    "app.retry-config.status-codes=500",
+    "app.retry-config.jitter=0.1", "app.retry-config.attempts=2", "app.retry-config.min-delay=200"})
 public class ChatToLinkConnectionTest extends IntegrationTest {
     @Autowired
     private JdbcChatDao chatRepository;
@@ -40,7 +42,7 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
              PreparedStatement deleteChat = connection.prepareStatement("DELETE FROM public.chat");
              PreparedStatement deleteLink = connection.prepareStatement("DELETE FROM public.link");
              PreparedStatement deleteConnection = connection.prepareStatement(
-                 "DELETE FROM public.chat_to_link_connection")) {
+                     "DELETE FROM public.chat_to_link_connection")) {
             deleteConnection.execute();
             deleteChat.execute();
             deleteLink.execute();
@@ -122,8 +124,7 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
     void findAllByLinkIdTest() {
         chatRepository.createIfNotExist(1L);
         chatRepository.createIfNotExist(2L);
-        long linkId =
-            linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+        long linkId = linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
 
         connectionRepository.createIfNotExist(1L, linkId);
         connectionRepository.createIfNotExist(2L, linkId);
@@ -142,9 +143,9 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
     void findAllByLinkChatTest() {
         chatRepository.createIfNotExist(1L);
         long firstLink =
-            linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+                linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
         long secondLink =
-            linkRepository.createIfNotExist("www.google.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+                linkRepository.createIfNotExist("www.google.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
 
         connectionRepository.createIfNotExist(1L, firstLink);
         connectionRepository.createIfNotExist(1L, secondLink);
@@ -163,7 +164,7 @@ public class ChatToLinkConnectionTest extends IntegrationTest {
     void findByComplexIdTest() throws AlreadyExistException, RepeatedRegistrationException {
         chatRepository.createIfNotExist(1L);
         long linkId =
-            linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
+                linkRepository.createIfNotExist("www.url.com", OffsetDateTime.MIN, OffsetDateTime.MIN).get();
 
         connectionRepository.createIfNotExist(1L, linkId);
 

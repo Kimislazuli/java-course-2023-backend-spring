@@ -46,7 +46,7 @@ public interface ScrapperApi {
                                         schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @DeleteMapping("/tg-chat/{id}")
-    void deleteChat(@PathVariable Long id) throws NotExistException;
+    ResponseEntity<Void> deleteChat(@PathVariable Long id) throws NotExistException;
 
     @Operation(summary = "Получить данные о чате")
     @ApiResponses(value = {
@@ -82,7 +82,7 @@ public interface ScrapperApi {
                                         schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @GetMapping("/links")
-    ListLinksResponse getLinks(Long id);
+    ResponseEntity<ListLinksResponse> getLinks(Long id);
 
     @Operation(summary = "Добавить отслеживание ссылки")
     @ApiResponses(value = {
@@ -98,7 +98,7 @@ public interface ScrapperApi {
                                         schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping("/links")
-    void addLink(Long id, AddLinkRequest addLinkRequest)
+    ResponseEntity<Void> addLink(Long id, AddLinkRequest addLinkRequest)
         throws RepeatedRegistrationException, AlreadyExistException, NotExistException;
 
     @Operation(summary = "Убрать отслеживание ссылки")
@@ -115,5 +115,5 @@ public interface ScrapperApi {
                                         schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @DeleteMapping("/links")
-    void deleteLink(Long id, RemoveLinkRequest removeLinkRequest) throws NotExistException;
+    ResponseEntity<Void> deleteLink(Long id, RemoveLinkRequest removeLinkRequest) throws NotExistException;
 }

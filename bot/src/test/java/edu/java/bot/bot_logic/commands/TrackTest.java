@@ -12,6 +12,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.util.retry.Retry;
+import java.time.Duration;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
@@ -48,17 +50,18 @@ public class TrackTest {
         when(messageMock.text()).thenReturn("link");
     }
 
-    ScrapperClient scrapperClient = new ScrapperClient(WebClient.builder(), "http://localhost:8080");
-    LinkService linkService = new LinkService(scrapperClient);
+    ScrapperClient client =
+        new ScrapperClient(WebClient.builder(), "http://localhost:8080", Retry.backoff(2, Duration.ofMinutes(2)));
+    LinkService linkService = new LinkService(client);
     TrackCommand trackCommand = new TrackCommand(linkService);
 
     @Test
     void addLink() {
-        stubFor(post(urlEqualTo("/links")).withHeader("Tg-Chat-Id", WireMock.equalTo("7"))
+        server.stubFor(post(urlEqualTo("/links")).withHeader("Tg-Chat-Id", WireMock.equalTo("7"))
             .withRequestBody(equalToJson("""
-                    {
-                      "link": "link"
-                    }""")).willReturn(aResponse().withStatus(200)));
+                {
+                  "link": "link"
+                }""")).willReturn(aResponse().withStatus(200)));
 
         SendMessage handled = trackCommand.handle(update);
         String actualResult = (String) handled.getParameters().get("text");

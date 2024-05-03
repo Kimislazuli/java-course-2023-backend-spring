@@ -5,8 +5,8 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_DB: scrapper
-      POSTGRES_USER: ${USERNAME}
-      POSTGRES_PASSWORD: ${PASSWORD}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     volumes:
       - postgresql:/var/lib/postgresql/data
     networks:

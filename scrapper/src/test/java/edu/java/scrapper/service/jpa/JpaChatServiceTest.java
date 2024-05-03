@@ -2,6 +2,8 @@ package edu.java.scrapper.service.jpa;
 
 import edu.java.scrapper.IntegrationTest;
 import edu.java.scrapper.domain.dao.jpa.JpaChatDao;
+import edu.java.scrapper.domain.dao.jpa.JpaChatToLinkConnectionDao;
+import edu.java.scrapper.domain.dao.jpa.JpaLinkDao;
 import edu.java.scrapper.domain.model.chat.Chat;
 import edu.java.scrapper.exception.NotExistException;
 import edu.java.scrapper.exception.RepeatedRegistrationException;
@@ -20,9 +22,12 @@ public class JpaChatServiceTest extends IntegrationTest {
     TgChatService tgChatService;
     @Autowired
     JpaChatDao jpaTgChatRepository;
+    @Autowired
+    JpaChatToLinkConnectionDao jpaChatToLinkConnectionDao;
 
     @BeforeEach
     void setUp() {
+        jpaChatToLinkConnectionDao.deleteAll();
         jpaTgChatRepository.deleteAll();
     }
 

@@ -1,4 +1,4 @@
-package edu.java.scrapper.sceduler;
+package edu.java.scrapper.scheduler;
 
 import edu.java.scrapper.client.BotClient;
 import edu.java.scrapper.client.GithubClient;
