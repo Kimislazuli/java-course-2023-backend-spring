@@ -1,14 +1,15 @@
 package edu.java.scrapper.scheduler;
 
-import edu.java.scrapper.client.BotClient;
+import edu.java.models.dto.LinkUpdate;
 import edu.java.scrapper.client.GithubClient;
 import edu.java.scrapper.client.StackOverflowClient;
 import edu.java.scrapper.domain.model.link.Link;
 import edu.java.scrapper.dto.github.GithubResponse;
 import edu.java.scrapper.dto.stackoverflow.StackOverflowResponse;
 import edu.java.scrapper.exception.NotExistException;
-import edu.java.scrapper.service.LinkService;
-import edu.java.scrapper.service.UpdaterService;
+import edu.java.scrapper.service.processing_services.LinkService;
+import edu.java.scrapper.service.processing_services.UpdaterService;
+import edu.java.scrapper.service.sending_services.SenderService;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -23,7 +24,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @SuppressWarnings("MagicNumber")
 public class LinkUpdaterScheduler {
-    private final BotClient botClient;
+    private final SenderService service;
     private final UpdaterService updaterService;
     private final LinkService linkService;
     private final GithubClient githubClient;
@@ -59,14 +60,16 @@ public class LinkUpdaterScheduler {
 
     public void stackOverflowUpdate(Link link) throws NotExistException {
         String[] urlParts = link.getUrl().split("/");
-        int question = Integer.getInteger(urlParts[urlParts.length - 1]);
-        StackOverflowResponse stackOverflowResponse = stackOverflowClient.fetchLastModificationTime(question);
-        if (link.getLastUpdate().isBefore(stackOverflowResponse.lastModified())) {
-            performTableUpdateAndTelegramNotification(
-                link.getId(),
-                link.getUrl(),
-                stackOverflowResponse.lastModified()
-            );
+        if (Integer.getInteger(urlParts[urlParts.length - 1]) != null) {
+            int question = Integer.getInteger(urlParts[urlParts.length - 1]);
+            StackOverflowResponse stackOverflowResponse = stackOverflowClient.fetchLastModificationTime(question);
+            if (link.getLastUpdate().isBefore(stackOverflowResponse.lastModified())) {
+                performTableUpdateAndTelegramNotification(
+                    link.getId(),
+                    link.getUrl(),
+                    stackOverflowResponse.lastModified()
+                );
+            }
         }
     }
 
@@ -74,6 +77,6 @@ public class LinkUpdaterScheduler {
         throws NotExistException {
         updaterService.update(linkId, updatedAt);
         List<Long> linkedChats = linkService.linkedChatIds(linkId);
-        botClient.updates(linkId, url, "link updated", linkedChats);
+        service.send(new LinkUpdate(linkId, url, "link updated", linkedChats));
     }
 }

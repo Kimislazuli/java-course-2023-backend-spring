@@ -1,4 +1,4 @@
-package edu.java.scrapper.service.jdbc_impl;
+package edu.java.scrapper.service.processing_services.jdbc_impl;
 
 import edu.java.scrapper.domain.dao.jdbc.JdbcChatDao;
 import edu.java.scrapper.domain.dao.jdbc.JdbcChatToLinkConnectionDao;
@@ -7,7 +7,7 @@ import edu.java.scrapper.domain.model.chat.Chat;
 import edu.java.scrapper.domain.model.connection.ChatToLinkConnection;
 import edu.java.scrapper.exception.NotExistException;
 import edu.java.scrapper.exception.RepeatedRegistrationException;
-import edu.java.scrapper.service.TgChatService;
+import edu.java.scrapper.service.processing_services.TgChatService;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;

@@ -14,12 +14,22 @@ app:
     capacity: 20
     tokens: 20
     duration: 6000000
+  topic:
+    name: bot_updates
+    partitions: 5
+    replicas: 1
+  dead-letter-topic:
+    name: updates_dl
+    partitions: 5
+    replicas: 1
 
 spring:
   application:
     name: bot
   jackson:
     time-zone: UTC
+  kafka:
+    bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
 
 server:
   port: 8090

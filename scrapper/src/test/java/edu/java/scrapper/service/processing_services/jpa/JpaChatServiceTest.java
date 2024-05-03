@@ -1,4 +1,4 @@
-package edu.java.scrapper.service.jpa;
+package edu.java.scrapper.service.processing_services.jpa;
 
 import edu.java.scrapper.IntegrationTest;
 import edu.java.scrapper.domain.dao.jpa.JpaChatDao;
@@ -7,7 +7,7 @@ import edu.java.scrapper.domain.dao.jpa.JpaLinkDao;
 import edu.java.scrapper.domain.model.chat.Chat;
 import edu.java.scrapper.exception.NotExistException;
 import edu.java.scrapper.exception.RepeatedRegistrationException;
-import edu.java.scrapper.service.TgChatService;
+import edu.java.scrapper.service.processing_services.TgChatService;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

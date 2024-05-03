@@ -1,10 +1,10 @@
-package edu.java.scrapper.service.jpa_impl;
+package edu.java.scrapper.service.processing_services.jpa_impl;
 
 import edu.java.scrapper.domain.dao.jpa.JpaChatDao;
 import edu.java.scrapper.domain.model.chat.Chat;
 import edu.java.scrapper.exception.NotExistException;
 import edu.java.scrapper.exception.RepeatedRegistrationException;
-import edu.java.scrapper.service.TgChatService;
+import edu.java.scrapper.service.processing_services.TgChatService;
 import jakarta.transaction.Transactional;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package edu.java.scrapper.service;
+package edu.java.scrapper.service.processing_services;
 
 import edu.java.scrapper.domain.model.link.Link;
 import edu.java.scrapper.exception.NotExistException;

@@ -18,12 +18,19 @@ public record ApplicationConfig(
     @NotNull
     RetryConfig retryConfig,
     @NotNull
-    TimeRateConfig timeRateConfig
+    TimeRateConfig timeRateConfig,
+    @NotNull
+    TopicConfig topic,
+    @NotNull
+    TopicConfig deadLetterTopic
 ) {
     public record RetryConfig(@NotNull BackoffType backoffType, int attempts, List<Integer> statusCodes, @NotNull
     Duration minDelay, @Max(1) float jitter) {
     }
 
     public record TimeRateConfig(Duration duration, long capacity, long tokens) {
+    }
+
+    public record TopicConfig(String name, int partitions, int replicas) {
     }
 }

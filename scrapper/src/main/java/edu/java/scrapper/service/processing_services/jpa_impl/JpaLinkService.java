@@ -1,4 +1,4 @@
-package edu.java.scrapper.service.jpa_impl;
+package edu.java.scrapper.service.processing_services.jpa_impl;
 
 import edu.java.scrapper.domain.dao.jpa.JpaChatDao;
 import edu.java.scrapper.domain.dao.jpa.JpaChatToLinkConnectionDao;
@@ -9,7 +9,7 @@ import edu.java.scrapper.domain.model.connection.ConnectionPK;
 import edu.java.scrapper.domain.model.link.Link;
 import edu.java.scrapper.exception.AlreadyExistException;
 import edu.java.scrapper.exception.NotExistException;
-import edu.java.scrapper.service.LinkService;
+import edu.java.scrapper.service.processing_services.LinkService;
 import jakarta.transaction.Transactional;
 import java.net.URI;
 import java.time.OffsetDateTime;

@@ -1,11 +1,11 @@
-package edu.java.scrapper.service.jpa;
+package edu.java.scrapper.service.processing_services.jpa;
 
 import edu.java.scrapper.IntegrationTest;
 import edu.java.scrapper.domain.dao.jpa.JpaChatToLinkConnectionDao;
 import edu.java.scrapper.domain.dao.jpa.JpaLinkDao;
 import edu.java.scrapper.domain.model.link.Link;
 import edu.java.scrapper.exception.NotExistException;
-import edu.java.scrapper.service.UpdaterService;
+import edu.java.scrapper.service.processing_services.UpdaterService;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;

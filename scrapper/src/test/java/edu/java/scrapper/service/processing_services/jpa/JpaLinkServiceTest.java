@@ -1,4 +1,4 @@
-package edu.java.scrapper.service.jpa;
+package edu.java.scrapper.service.processing_services.jpa;
 
 import edu.java.scrapper.IntegrationTest;
 import edu.java.scrapper.domain.dao.jpa.JpaChatDao;
@@ -10,7 +10,7 @@ import edu.java.scrapper.domain.model.link.Link;
 import edu.java.scrapper.exception.AlreadyExistException;
 import edu.java.scrapper.exception.NotExistException;
 import edu.java.scrapper.exception.RepeatedRegistrationException;
-import edu.java.scrapper.service.LinkService;
+import edu.java.scrapper.service.processing_services.LinkService;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;

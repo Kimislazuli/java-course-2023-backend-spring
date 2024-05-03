@@ -13,12 +13,16 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties(prefix = "app", ignoreUnknownFields = false)
 public record ApplicationConfig(
     @NotNull
+    boolean useQueue,
+    @NotNull
     Scheduler scheduler,
     AccessType databaseAccessType,
     @NotNull
     RetryConfig retryConfig,
     @NotNull
-    TimeRateConfig timeRateConfig
+    TimeRateConfig timeRateConfig,
+    @NotNull
+    TopicConfig topic
 ) {
     public record TimeRateConfig(Duration duration, long capacity, long tokens) {
     }
@@ -28,5 +32,8 @@ public record ApplicationConfig(
     }
 
     public record Scheduler(boolean enable, @NotNull Duration interval, @NotNull Duration forceCheckDelay) {
+    }
+
+    public record TopicConfig(String name, int partitions, int replicas) {
     }
 }
