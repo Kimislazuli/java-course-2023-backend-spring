@@ -82,7 +82,7 @@ public class ScrapperController implements ScrapperApi {
     }
 
     @Override
-    public ResponseEntity<Void> changeChatState(@PathVariable Long id, @RequestHeader("State") int state)
+    public ResponseEntity<Void> changeChatState(@PathVariable Long id, @RequestHeader("State") short state)
         throws NotExistException {
         if (bucket.tryConsume(1)) {
             log.info("Process request on /tg-chat/{}/change_state POST", id);

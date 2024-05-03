@@ -12,6 +12,6 @@ public class HttpSenderService implements SenderService {
 
     @Override
     public void send(LinkUpdate update) {
-        client.updates(update.id(), update.url(), update.description(), update.tgChatIds());
+        client.updates(update);
     }
 }

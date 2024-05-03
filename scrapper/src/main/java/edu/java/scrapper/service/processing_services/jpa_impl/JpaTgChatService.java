@@ -20,7 +20,7 @@ public class JpaTgChatService implements TgChatService {
             throw new IllegalArgumentException("Id should be positive");
         }
         if (!chatDao.existsById(tgChatId)) {
-            chatDao.saveAndFlush(new Chat(tgChatId, 0));
+            chatDao.saveAndFlush(new Chat(tgChatId, (short) 0));
         } else {
             throw new RepeatedRegistrationException("This chat already exists");
         }
@@ -43,7 +43,7 @@ public class JpaTgChatService implements TgChatService {
 
     @Override
     @Transactional
-    public void setState(long chatId, int state) throws NotExistException {
+    public void setState(long chatId, short state) throws NotExistException {
         Optional<Chat> chat = chatDao.findById(chatId);
         if (chat.isPresent()) {
             chat.get().setState(state);

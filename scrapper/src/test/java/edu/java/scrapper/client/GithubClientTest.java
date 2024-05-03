@@ -1,10 +1,10 @@
 package edu.java.scrapper.client;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import edu.java.scrapper.dto.github.GithubResponse;
 import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.util.Optional;
+import java.util.List;
+import edu.java.scrapper.dto.github.GithubActivityResponse;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.util.retry.Retry;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,23 +31,30 @@ public class GithubClientTest {
 
     @Test
     public void correctlyReceiveLastModificationTime() {
-        server.stubFor(get(urlEqualTo("/repos/johndoe/java/events?per_page=1")).willReturn(aResponse()
+        stubFor(get(urlEqualTo("/repos/johndoe/java/activity")).willReturn(aResponse()
             .withStatus(200)
             .withHeader("Content-Type", "application/json")
             .withBody("""
                 [
                   {
-                    "public": true,
-                    "created_at": "2024-01-03T01:57:09Z"
+                    "timestamp": "2024-01-03T01:57:09Z",
+                    "activity_type": "pr_merge",
+                    "actor": {
+                          "login": "Kimislazuli"
+                    }
                   }
                 ]""")));
 
         GithubClient githubClient =
-            new GithubClient(WebClient.builder(), "http://localhost:8080", Retry.backoff(2, Duration.ofSeconds(2)));
+            new GithubClient(WebClient.builder(), "http://localhost:8080", Retry.backoff(2, Duration.ofHours(2)));
 
-        Optional<GithubResponse> actualResult = githubClient.fetchLastModificationTime("johndoe", "java");
+        List<GithubActivityResponse> actualResult =
+            githubClient.fetchActivity("johndoe", "java", OffsetDateTime.parse("2024-01-01T01:57:09Z"));
 
-        assertThat(actualResult).isPresent();
-        assertThat(actualResult.get()).isEqualTo(new GithubResponse(OffsetDateTime.parse("2024-01-03T01:57:09Z")));
+        assertThat(actualResult).containsExactlyInAnyOrder(new GithubActivityResponse(
+            "pr_merge",
+            new GithubActivityResponse.Actor("Kimislazuli"),
+            OffsetDateTime.parse("2024-01-03T01:57:09Z")
+        ));
     }
 }

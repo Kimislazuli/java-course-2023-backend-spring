@@ -1,6 +1,8 @@
-package edu.java.scrapper.client.bot;
+package edu.java.scrapper.client;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import edu.java.models.dto.LinkUpdate;
+import edu.java.models.dto.UpdateType;
 import edu.java.scrapper.client.BotClient;
 import java.time.Duration;
 import java.util.List;
@@ -34,10 +36,9 @@ public class BotClientTest {
     void updatesTest() {
         server.stubFor(post(urlEqualTo("/updates")).willReturn(aResponse().withStatus(200)));
 
-        client.updates(1L, "url", "description", List.of(1L, 2L));
+        client.updates(new LinkUpdate(1L, "url", "description", List.of(1L, 2L), UpdateType.DEFAULT));
         String requestBody = server.getAllServeEvents().getFirst().getRequest().getBodyAsString();
         assertThat(requestBody).isEqualTo(
-            "{\"id\":1,\"url\":\"url\",\"description\":\"description\",\"tgChatIds\":[1,2]}");
+            "{\"id\":1,\"url\":\"url\",\"description\":\"description\",\"tgChatIds\":[1,2],\"updateType\":\"DEFAULT\"}");
     }
-
 }

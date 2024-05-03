@@ -31,7 +31,8 @@ public class ChatDaoTest extends IntegrationTest {
         try (Connection connection = POSTGRES.createConnection("");
              PreparedStatement sqlQueryChat = connection.prepareStatement("DELETE FROM public.chat");
              PreparedStatement sqlQueryLink = connection.prepareStatement("DELETE FROM public.link");
-             PreparedStatement sqlQueryConnection = connection.prepareStatement("DELETE FROM public.chat_to_link_connection");
+             PreparedStatement sqlQueryConnection = connection.prepareStatement(
+                 "DELETE FROM public.chat_to_link_connection");
         ) {
             sqlQueryConnection.execute();
             sqlQueryChat.execute();
@@ -49,7 +50,7 @@ public class ChatDaoTest extends IntegrationTest {
 
         List<Chat> actualResult = repository.findAll();
 
-        assertThat(actualResult).containsExactly(new Chat(22L, 0));
+        assertThat(actualResult).containsExactly(new Chat(22L, (short) 0));
     }
 
     @Test
@@ -101,11 +102,11 @@ public class ChatDaoTest extends IntegrationTest {
     void setStateTest() {
         repository.createIfNotExist(11L);
 
-        repository.setState(11L, 2);
+        repository.setState(11L, (short) 2);
         Optional<Chat> actualResult = repository.getById(11L);
 
         assertThat(actualResult).isPresent();
-        assertThat(actualResult.get().getState()).isEqualTo(2);
+        assertThat(actualResult.get().getState()).isEqualTo((short) 2);
     }
 
     @Test
@@ -116,7 +117,7 @@ public class ChatDaoTest extends IntegrationTest {
 
         assertThrows(
             InvalidDataAccessApiUsageException.class,
-            () -> repository.setState(11L, 3)
+            () -> repository.setState(11L, (short) 3)
         );
     }
 }

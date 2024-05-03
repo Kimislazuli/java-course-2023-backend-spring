@@ -2,6 +2,8 @@ package edu.java.scrapper.client.bot;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
+import edu.java.models.dto.LinkUpdate;
+import edu.java.models.dto.UpdateType;
 import edu.java.scrapper.IntegrationTest;
 import edu.java.scrapper.client.BotClient;
 import java.util.List;
@@ -55,12 +57,13 @@ public class BotRetryTest extends IntegrationTest {
             .willReturn(aResponse().withStatus(200).withBody(""))
         );
 
-        assertDoesNotThrow(() -> client.updates(
+        assertDoesNotThrow(() -> client.updates(new LinkUpdate(
             1L,
             "www.link.com",
             "description",
-            List.of(1L)
-        ));
+            List.of(1L),
+            UpdateType.DEFAULT
+        )));
         server.verify(2, postRequestedFor(urlEqualTo("/updates")));
     }
 }

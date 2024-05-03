@@ -1,5 +1,6 @@
 package edu.java.scrapper.domain.dao.jdbc;
 
+import edu.java.scrapper.domain.dao.abstract_dao.ChatToLinkConnectionDao;
 import edu.java.scrapper.domain.model.connection.ChatToLinkConnection;
 import edu.java.scrapper.domain.model.connection.ChatToLinkConnectionRowMapper;
 import edu.java.scrapper.exception.NotExistException;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class JdbcChatToLinkConnectionDao {
+public class JdbcChatToLinkConnectionDao implements ChatToLinkConnectionDao {
     private final JdbcClient client;
     private final ChatToLinkConnectionRowMapper mapper;
 

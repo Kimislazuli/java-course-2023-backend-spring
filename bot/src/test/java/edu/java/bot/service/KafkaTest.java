@@ -4,6 +4,7 @@ import edu.java.models.dto.LinkUpdate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import edu.java.models.dto.UpdateType;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -27,10 +28,10 @@ public class KafkaTest extends KafkaIntegrationEnvironment {
     @Test
     public void correctMessageTest() {
         try (KafkaProducer<String, LinkUpdate> kafkaProducer = new KafkaProducer<>(getProducerProps())) {
-            kafkaProducer.send(new ProducerRecord<>(topic, new LinkUpdate(1L, "www.url.com", "link", List.of(1L))));
+            kafkaProducer.send(new ProducerRecord<>(topic, new LinkUpdate(1L, "www.url.com", "link", List.of(1L), UpdateType.DEFAULT)));
 
             Mockito.verify(botService, Mockito.after(1000).times(1))
-                .sendUpdatesInfo(new LinkUpdate(1L, "www.url.com", "link", List.of(1L)));
+                .sendUpdatesInfo(new LinkUpdate(1L, "www.url.com", "link", List.of(1L), UpdateType.DEFAULT));
         }
     }
 

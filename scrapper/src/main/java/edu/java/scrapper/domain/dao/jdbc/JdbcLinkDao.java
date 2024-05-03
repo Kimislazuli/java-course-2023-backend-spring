@@ -1,5 +1,6 @@
 package edu.java.scrapper.domain.dao.jdbc;
 
+import edu.java.scrapper.domain.dao.abstract_dao.LinkDao;
 import edu.java.scrapper.domain.model.link.Link;
 import edu.java.scrapper.domain.model.link.LinkRowMapper;
 import edu.java.scrapper.exception.NotExistException;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Repository;
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class JdbcLinkDao {
+public class JdbcLinkDao implements LinkDao {
     private final JdbcClient client;
     private final LinkRowMapper mapper;
 

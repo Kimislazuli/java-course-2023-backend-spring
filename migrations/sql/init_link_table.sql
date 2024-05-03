@@ -1,7 +1,7 @@
 --liquibase formatted sql
 
 --changeset kimislazuli:2
-CREATE TABLE IF NOT EXISTS scrapper.public.link
+CREATE TABLE IF NOT EXISTS link
 (
     id          BIGINT  NOT NULL GENERATED ALWAYS AS IDENTITY,
     url         VARCHAR NOT NULL,

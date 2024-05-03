@@ -1,5 +1,5 @@
 package edu.java.scrapper.configuration.database;
 
 public enum AccessType {
-    JDBC, JPA
+    JDBC, JPA, JOOQ
 }

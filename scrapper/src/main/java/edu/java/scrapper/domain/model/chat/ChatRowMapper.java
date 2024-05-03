@@ -10,6 +10,6 @@ import org.springframework.stereotype.Component;
 public class ChatRowMapper implements RowMapper<Chat> {
     @Override
     public Chat mapRow(@NotNull ResultSet resultSet, int rowNum) throws SQLException {
-        return new Chat(resultSet.getLong(1), resultSet.getInt(2));
+        return new Chat(resultSet.getLong(1), resultSet.getShort(2));
     }
 }

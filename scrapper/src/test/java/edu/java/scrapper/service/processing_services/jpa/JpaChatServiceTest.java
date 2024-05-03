@@ -1,4 +1,4 @@
-package edu.java.scrapper.service.processing_services.jpa;
+package edu.java.scrapper.service.jpa;
 
 import edu.java.scrapper.IntegrationTest;
 import edu.java.scrapper.domain.dao.jpa.JpaChatDao;
@@ -72,7 +72,7 @@ public class JpaChatServiceTest extends IntegrationTest {
         Optional<Chat> chat = tgChatService.getChat(1L);
         assertThat(chat).isPresent();
         assertThat(chat.get().getId()).isEqualTo(1L);
-        assertThat(chat.get().getState()).isEqualTo(0);
+        assertThat(chat.get().getState()).isEqualTo((short) 0);
     }
 
     @Test
@@ -81,12 +81,12 @@ public class JpaChatServiceTest extends IntegrationTest {
         Optional<Chat> chat = tgChatService.getChat(1L);
         assertThat(chat).isPresent();
         assertThat(chat.get().getId()).isEqualTo(1L);
-        assertThat(chat.get().getState()).isEqualTo(0);
+        assertThat(chat.get().getState()).isEqualTo((short) 0);
 
-        tgChatService.setState(1L, 2);
+        tgChatService.setState(1L, (short) 2);
         Optional<Chat> actualResult = tgChatService.getChat(1L);
         assertThat(actualResult).isPresent();
         assertThat(actualResult.get().getId()).isEqualTo(1L);
-        assertThat(actualResult.get().getState()).isEqualTo(2);
+        assertThat(actualResult.get().getState()).isEqualTo((short) 2);
     }
 }
